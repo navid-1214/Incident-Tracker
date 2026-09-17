@@ -41,12 +41,24 @@ function renderTasks(){
 
 function renderHistory(){
   let q=$("historySearch").value.toLowerCase().trim();
-  let list=tasks.filter(t=>t.status==="done").filter(t=>!q||[t.name,t.person,t.description].join(" ").toLowerCase().includes(q));
-  $("historyRows").innerHTML=list.map(t=>`<tr>
-<td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td><td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td>
-<td>${fa(t.date)}</td><td>انجام شد</td><td class="elapsed">${elapsed(t.createdAt)}</td></tr>`).join("");
-  $("emptyH").style.display=list.length?"none":"block";
+  let closedIncidents=incidents.filter(i=>i.status==="closed")
+    .filter(i=>!q||[i.no,i.subject,i.contractor,i.description].join(" ").toLowerCase().includes(q));
+  let doneTasks=tasks.filter(t=>t.status==="done")
+    .filter(t=>!q||[t.name,t.person,t.description].join(" ").toLowerCase().includes(q));
+
+  $("historyIncidentRows").innerHTML=closedIncidents.map(i=>`<tr class="history-incident">
+<td><span class="history-badge incident-badge">Incident</span></td><td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td>
+<td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td><td>${i.progress}%</td><td>${esc(i.description||"-")}</td>
+<td>${fa(i.f1)}</td><td>${fa(i.f2)}</td></tr>`).join("");
+
+  $("historyTaskRows").innerHTML=doneTasks.map(t=>`<tr class="history-task">
+<td><span class="history-badge task-badge">Task</span></td><td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td>
+<td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td><td>${fa(t.date)}</td><td>انجام شد</td><td class="elapsed">${elapsed(t.createdAt)}</td></tr>`).join("");
+
+  $("emptyHI").style.display=closedIncidents.length?"none":"block";
+  $("emptyHT").style.display=doneTasks.length?"none":"block";
 }
+
 function renderAll(){renderIncidents();renderTasks();renderHistory()}
 
 function openIncident(){

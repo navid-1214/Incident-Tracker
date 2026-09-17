@@ -31,3 +31,17 @@ label{display:block;color:#bbb;font-size:13px;margin:10px 0}
 input,select,textarea{display:block;width:100%;margin-top:6px;background:#191b20;color:#fff;border:1px solid #30333a;border-radius:9px;padding:10px;font:inherit}
 .actions{display:flex;gap:8px;margin-top:15px}
 @media(max-width:700px){.toolbar{display:grid;grid-template-columns:1fr}.primary{width:100%}.datebar{justify-content:space-between}}
+
+/* History visual separation */
+.history-title{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;margin:16px 0 9px;padding:10px 12px;border-radius:10px;background:#17191e}
+.history-title span{width:10px;height:10px;border-radius:50%;display:inline-block}
+.incident-title{border-right:4px solid #4da3ff}.incident-title span{background:#4da3ff}
+.task-title{border-right:4px solid #b56cff}.task-title span{background:#b56cff}
+.history-wrap{margin-bottom:0}
+.history-incident td{background:rgba(77,163,255,.08)}
+.history-task td{background:rgba(181,108,255,.08)}
+.history-incident td:first-child{border-right:4px solid #4da3ff}
+.history-task td:first-child{border-right:4px solid #b56cff}
+.history-badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
+.incident-badge{background:#193451;color:#8fc9ff;border:1px solid #2f6596}
+.task-badge{background:#321b48;color:#d8b2ff;border:1px solid #72429a}

@@ -40,7 +40,7 @@
 
 <section id="tasks" class="page">
   <div class="toolbar">
-    <div class="search">🔎 <input id="taskSearch" placeholder="جستجوی Task"></div>
+    <div class="search">🔎 </div>
     <div class="datebar"><button id="prevT">‹</button><button id="todayT">📅 امروز</button><span id="dateT"></span><button id="nextT">›</button></div>
     <button id="addTask" class="primary">＋ ثبت Task</button>
   </div>
@@ -53,10 +53,18 @@
 
 <section id="history" class="page">
   <div class="toolbar"><div class="search">🔎 <input id="historySearch" placeholder="جستجوی History"></div></div>
-  <div class="tablewrap"><table><thead><tr>
-    <th>عنوان Task</th><th>زمان</th><th>توضیحات</th><th>با چه شخصی</th><th>تاریخ</th><th>وضعیت</th><th>زمان سپری شده</th>
-  </tr></thead><tbody id="historyRows"></tbody></table></div>
-  <div id="emptyH" class="empty">هنوز Task انجام‌شده‌ای در History وجود ندارد.</div>
+
+  <div class="history-title incident-title"><span></span>Incident های اتمام کار</div>
+  <div class="tablewrap history-wrap"><table><thead><tr>
+    <th>نوع</th><th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>درصد پیشرفت</th><th>توضیحات</th><th>پیگیری ۱</th><th>پیگیری ۲</th>
+  </tr></thead><tbody id="historyIncidentRows"></tbody></table></div>
+  <div id="emptyHI" class="empty">هنوز Incident اتمام کاری در History وجود ندارد.</div>
+
+  <div class="history-title task-title"><span></span>Task های انجام‌شده</div>
+  <div class="tablewrap history-wrap"><table><thead><tr>
+    <th>نوع</th><th>عنوان Task</th><th>زمان</th><th>توضیحات</th><th>با چه شخصی</th><th>تاریخ</th><th>وضعیت</th><th>زمان سپری شده</th>
+  </tr></thead><tbody id="historyTaskRows"></tbody></table></div>
+  <div id="emptyHT" class="empty">هنوز Task انجام‌شده‌ای در History وجود ندارد.</div>
 </section>
 </main>
 
