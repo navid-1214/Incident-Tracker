@@ -1,57 +1,104 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0b0d"><title>Incident Tracker</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0d">
+<title>Incident Tracker</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><b>Incident Tracker</b><nav>
-<button class="tab active" data-page="incidents">Incident</button>
-<button class="tab" data-page="tasks">Daily Tasks</button>
-<button class="tab" data-page="history">History Incident</button>
-</nav></header>
+<header>
+  <b>Incident Tracker</b>
+  <nav>
+    <button class="tab active" data-page="incidents">Incident</button>
+    <button class="tab" data-page="tasks">Daily Tasks</button>
+    <button class="tab" data-page="history">History Incident</button>
+  </nav>
+</header>
 
 <main>
 <section id="incidents" class="page active">
-<div class="toolbar">
-<div class="search">🔎 <input id="search" placeholder="جستجوی Incident"></div>
-<div class="datebar"><button id="prev">‹</button><button id="today">📅 امروز</button><span id="date"></span><button id="next">›</button></div>
-<button id="add" class="primary">＋ ثبت Incident</button>
-</div>
-<div class="filters">
-<button class="filter active" data-status="all">همه</button>
-<button class="filter" data-status="open"><i class="green"></i> باز</button>
-<button class="filter" data-status="progress"><i class="orange"></i> در حال پیگیری</button>
-<button class="filter" data-status="closed"><i class="blue"></i> اتمام کار</button>
-</div>
-<div class="tablewrap"><table><thead><tr>
-<th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th>
-<th>تاریخ پیگیری ۱</th><th>تاریخ پیگیری ۲</th><th>وضعیت</th><th>درصد پیشرفت</th>
-<th>شمارش زمان</th><th>توضیحات</th><th>عملیات</th>
-</tr></thead><tbody id="rows"></tbody></table></div>
-<div id="empty">برای تاریخ انتخاب‌شده Incidentای ثبت نشده است.</div>
+  <div class="toolbar">
+    <div class="search">🔎 <input id="search" placeholder="جستجوی Incident"></div>
+    <div class="datebar"><button id="prevI">‹</button><button id="todayI">📅 امروز</button><span id="dateI"></span><button id="nextI">›</button></div>
+    <button id="addIncident" class="primary">＋ ثبت Incident</button>
+  </div>
+  <div class="filters">
+    <button class="filter active" data-status="all">همه</button>
+    <button class="filter" data-status="open"><i class="green"></i> باز</button>
+    <button class="filter" data-status="progress"><i class="orange"></i> در حال پیگیری</button>
+    <button class="filter" data-status="closed"><i class="blue"></i> اتمام کار</button>
+  </div>
+  <div class="tablewrap"><table><thead><tr>
+    <th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th>
+    <th>تاریخ پیگیری ۱</th><th>تاریخ پیگیری ۲</th><th>وضعیت</th><th>درصد پیشرفت</th>
+    <th>زمان سپری شده</th><th>توضیحات</th><th>عملیات</th>
+  </tr></thead><tbody id="incidentRows"></tbody></table></div>
+  <div id="emptyI" class="empty">برای تاریخ انتخاب‌شده Incidentای ثبت نشده است.</div>
 </section>
-<section id="tasks" class="page"><div class="card"><h2>Daily Tasks</h2><p>بخش وظایف روزانه.</p></div></section>
-<section id="history" class="page"><div class="card"><h2>History Incident</h2><p>برای مشاهده سوابق، تاریخ موردنظر را در بخش Incident انتخاب کنید.</p></div></section>
+
+<section id="tasks" class="page">
+  <div class="toolbar">
+    <div class="search">🔎 <input id="taskSearch" placeholder="جستجوی Task"></div>
+    <div class="datebar"><button id="prevT">‹</button><button id="todayT">📅 امروز</button><span id="dateT"></span><button id="nextT">›</button></div>
+    <button id="addTask" class="primary">＋ ثبت Task</button>
+  </div>
+  <div class="tablewrap"><table><thead><tr>
+    <th>عنوان Task</th><th>زمان</th><th>توضیحات</th><th>با چه شخصی</th><th>تاریخ</th>
+    <th>وضعیت</th><th>زمان سپری شده</th><th>عملیات</th>
+  </tr></thead><tbody id="taskRows"></tbody></table></div>
+  <div id="emptyT" class="empty">برای تاریخ انتخاب‌شده Taskای ثبت نشده است.</div>
+</section>
+
+<section id="history" class="page">
+  <div class="toolbar"><div class="search">🔎 <input id="historySearch" placeholder="جستجوی History"></div></div>
+  <div class="tablewrap"><table><thead><tr>
+    <th>عنوان Task</th><th>زمان</th><th>توضیحات</th><th>با چه شخصی</th><th>تاریخ</th><th>وضعیت</th><th>زمان سپری شده</th>
+  </tr></thead><tbody id="historyRows"></tbody></table></div>
+  <div id="emptyH" class="empty">هنوز Task انجام‌شده‌ای در History وجود ندارد.</div>
+</section>
 </main>
 
-<footer>طراحی و توسعه: نوید رضائی © 2026 | تماس: 09000900820<br>Incident Tracker</footer>
-<nav class="bottom"><button class="active" data-page="incidents">Incident</button><button data-page="tasks">Daily Tasks</button><button data-page="history">History</button></nav>
+<footer>
+  <div>طراحی و توسعه: نوید رضائی © 2026</div>
+  <div>تماس: 09000900820</div>
+  <div>Incident Tracker</div>
+</footer>
 
-<dialog id="dlg"><form id="form">
-<div class="modalhead"><h3 id="title">ثبت Incident</h3><button type="button" id="close">×</button></div>
-<input type="hidden" id="id">
-<label>شماره Incident<input id="no" required placeholder="INC-001"></label>
-<label>موضوع Incident<input id="subject" required></label>
-<label>تاریخ ثبت<input id="reg" type="date" required></label>
+<nav class="bottom">
+  <button class="active" data-page="incidents">Incident</button>
+  <button data-page="tasks">Daily Tasks</button>
+  <button data-page="history">History</button>
+</nav>
+
+<dialog id="incidentDlg"><form id="incidentForm">
+<div class="modalhead"><h3 id="incidentTitle">ثبت Incident</h3><button type="button" data-close="incidentDlg">×</button></div>
+<input type="hidden" id="incidentId">
+<label>شماره Incident<input id="incidentNo" required placeholder="INC-001"></label>
+<label>موضوع Incident<input id="incidentSubject" required></label>
+<label>تاریخ ثبت<input id="incidentDate" type="date" required></label>
 <label>پیمانکار<input id="contractor"></label>
-<label>تاریخ پیگیری ۱<input id="f1" type="date"></label>
-<label>تاریخ پیگیری ۲<input id="f2" type="date"></label>
-<label>وضعیت<select id="status"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label>
-<label>درصد پیشرفت<input id="progress" type="number" min="0" max="100" value="0"></label>
-<label>توضیحات<textarea id="description" rows="4"></textarea></label>
-<div class="actions"><button type="button" id="cancel">انصراف</button><button class="primary">ذخیره</button></div>
+<label>تاریخ پیگیری ۱<input id="follow1" type="date"></label>
+<label>تاریخ پیگیری ۲<input id="follow2" type="date"></label>
+<label>وضعیت<select id="incidentStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label>
+<label>درصد پیشرفت<input id="incidentProgress" type="number" min="0" max="100" value="0"></label>
+<label>توضیحات<textarea id="incidentDescription" rows="4"></textarea></label>
+<div class="actions"><button type="button" data-close="incidentDlg">انصراف</button><button class="primary">ذخیره</button></div>
 </form></dialog>
+
+<dialog id="taskDlg"><form id="taskForm">
+<div class="modalhead"><h3 id="taskTitle">ثبت Task روزانه</h3><button type="button" data-close="taskDlg">×</button></div>
+<input type="hidden" id="taskId">
+<label>عنوان Task<input id="taskName" required></label>
+<label>زمان<input id="taskTime" type="time" required></label>
+<label>توضیحات<textarea id="taskDescription" rows="4"></textarea></label>
+<label>با چه شخصی<input id="taskPerson" placeholder="نام شخص"></label>
+<label>در چه تاریخی<input id="taskDate" type="date" required></label>
+<label>وضعیت<select id="taskStatus"><option value="notdone">انجام نشد</option><option value="done">انجام شد</option></select></label>
+<div class="actions"><button type="button" data-close="taskDlg">انصراف</button><button class="primary">ذخیره</button></div>
+</form></dialog>
+
 <script src="app.js"></script>
-</body></html>
+</body>
+</html>
