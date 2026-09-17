@@ -1,1 +1,57 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111"><title>Incident</title><link rel="stylesheet" href="style.css"></head><body><header><div><h1>Incident</h1><small id="count">0</small></div><button id="addBtn">＋ ثبت Incident</button></header><main><div class="toolbar"><input id="search" class="search" placeholder="جستجو در شماره، موضوع یا پیمانکار..."><button id="notifyBtn">فعال‌سازی اعلان</button></div><div class="legend"><span>باز</span><span>در حال پیگیری</span><span>بسته</span><span class="orange">بیش از ۲۴ ساعت</span><span class="red">بیش از ۴۸ ساعت</span></div><div class="table-wrap"><table><thead><tr><th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>تاریخ پیگیری ۱</th><th>تاریخ پیگیری ۲</th><th>وضعیت</th><th>درصد پیشرفت</th><th>زمان سپری‌شده</th><th>عملیات</th></tr></thead><tbody id="rows"></tbody></table></div></main><div id="modal" class="modal hidden"><div class="card"><div class="card-head"><h2>ثبت Incident</h2><button id="closeBtn" class="icon">×</button></div><form id="form"><label>شماره Incident<input id="number" required></label><label>موضوع Incident<textarea id="subject" required></textarea></label><label>پیمانکار<input id="contractor"></label><label>تاریخ ثبت<input id="registeredAt" type="datetime-local" required></label><label>تاریخ پیگیری ۱<input id="follow1" type="datetime-local"></label><label>تاریخ پیگیری ۲<input id="follow2" type="datetime-local"></label><label>وضعیت<select id="status"><option value="open">باز</option><option value="follow">در حال پیگیری</option><option value="closed">بسته</option></select></label><label>درصد پیشرفت<input id="progress" type="range" min="0" max="100" value="0"><output id="progressOut">0٪</output></label><div class="actions"><button type="button" id="cancelBtn">لغو</button><button type="submit">ثبت</button></div></form></div></div><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0d"><title>Incident Tracker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><b>Incident Tracker</b><nav>
+<button class="tab active" data-page="incidents">Incident</button>
+<button class="tab" data-page="tasks">Daily Tasks</button>
+<button class="tab" data-page="history">History Incident</button>
+</nav></header>
+
+<main>
+<section id="incidents" class="page active">
+<div class="toolbar">
+<div class="search">🔎 <input id="search" placeholder="جستجوی Incident"></div>
+<div class="datebar"><button id="prev">‹</button><button id="today">📅 امروز</button><span id="date"></span><button id="next">›</button></div>
+<button id="add" class="primary">＋ ثبت Incident</button>
+</div>
+<div class="filters">
+<button class="filter active" data-status="all">همه</button>
+<button class="filter" data-status="open"><i class="green"></i> باز</button>
+<button class="filter" data-status="progress"><i class="orange"></i> در حال پیگیری</button>
+<button class="filter" data-status="closed"><i class="blue"></i> اتمام کار</button>
+</div>
+<div class="tablewrap"><table><thead><tr>
+<th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th>
+<th>تاریخ پیگیری ۱</th><th>تاریخ پیگیری ۲</th><th>وضعیت</th><th>درصد پیشرفت</th>
+<th>شمارش زمان</th><th>توضیحات</th><th>عملیات</th>
+</tr></thead><tbody id="rows"></tbody></table></div>
+<div id="empty">برای تاریخ انتخاب‌شده Incidentای ثبت نشده است.</div>
+</section>
+<section id="tasks" class="page"><div class="card"><h2>Daily Tasks</h2><p>بخش وظایف روزانه.</p></div></section>
+<section id="history" class="page"><div class="card"><h2>History Incident</h2><p>برای مشاهده سوابق، تاریخ موردنظر را در بخش Incident انتخاب کنید.</p></div></section>
+</main>
+
+<footer>طراحی و توسعه: نوید رضائی © 2026 | تماس: 09000900820<br>Incident Tracker</footer>
+<nav class="bottom"><button class="active" data-page="incidents">Incident</button><button data-page="tasks">Daily Tasks</button><button data-page="history">History</button></nav>
+
+<dialog id="dlg"><form id="form">
+<div class="modalhead"><h3 id="title">ثبت Incident</h3><button type="button" id="close">×</button></div>
+<input type="hidden" id="id">
+<label>شماره Incident<input id="no" required placeholder="INC-001"></label>
+<label>موضوع Incident<input id="subject" required></label>
+<label>تاریخ ثبت<input id="reg" type="date" required></label>
+<label>پیمانکار<input id="contractor"></label>
+<label>تاریخ پیگیری ۱<input id="f1" type="date"></label>
+<label>تاریخ پیگیری ۲<input id="f2" type="date"></label>
+<label>وضعیت<select id="status"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label>
+<label>درصد پیشرفت<input id="progress" type="number" min="0" max="100" value="0"></label>
+<label>توضیحات<textarea id="description" rows="4"></textarea></label>
+<div class="actions"><button type="button" id="cancel">انصراف</button><button class="primary">ذخیره</button></div>
+</form></dialog>
+<script src="app.js"></script>
+</body></html>
