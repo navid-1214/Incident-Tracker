@@ -1,13 +1,14 @@
-const IK="incident-tracker-v4-incidents",TK="incident-tracker-v4-tasks";
+const IK="incident-tracker-v4-incidents",TK="incident-tracker-v4-tasks",HK="incident-tracker-v4-history";
 let incidents=JSON.parse(localStorage.getItem(IK)||"[]");
 let tasks=JSON.parse(localStorage.getItem(TK)||"[]");
+let history=JSON.parse(localStorage.getItem(HK)||"[]");
 let iDate=today(),tDate=today(),iFilter="all";
 const $=id=>document.getElementById(id);
 
 function today(){let d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
 function fa(s){if(!s)return"-";return new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(s+"T00:00:00"))}
 function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function save(){localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks))}
+function save(){localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks));localStorage.setItem(HK,JSON.stringify(history))}
 function elapsed(iso,endIso){let end=endIso?new Date(endIso):new Date();let n=Math.max(0,Math.floor((end-new Date(iso))/1000)),h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":")}
 function incStatus(s){return s==="open"?"باز":s==="progress"?"در حال پیگیری":"اتمام کار"}
 function incDot(s){return s==="open"?"green":s==="progress"?"orange":"blue"}
@@ -38,25 +39,26 @@ function renderTasks(){
 }
 
 function renderHistory(){
-  let q=$("historySearch").value.toLowerCase().trim();
-  let closedIncidents=incidents.filter(i=>i.status==="closed")
-    .filter(i=>i.status!=="closed");
-  let doneTasks=tasks.filter(t=>t.status==="done")
-    .filter(t=>!q||[t.name,t.person,t.description].join(" ").toLowerCase().includes(q));
+  let q=($("historySearch")?.value||"").toLowerCase().trim();
+  let closedIncidents=incidents.filter(i=>i.status==="closed").map(i=>({...i,historyType:"completed"}));
+  let deletedIncidents=history.filter(x=>x.type==="incident").map(x=>({...x.item,historyType:"deleted"}));
+  let allIncidents=[...closedIncidents,...deletedIncidents].filter(i=>!q||[i.no,i.subject,i.contractor,i.description].join(" ").toLowerCase().includes(q));
+  let doneTasks=tasks.filter(t=>t.status==="done").map(t=>({...t,historyType:"completed"}));
+  let deletedTasks=history.filter(x=>x.type==="task").map(x=>({...x.item,historyType:"deleted"}));
+  let allTasks=[...doneTasks,...deletedTasks].filter(t=>!q||[t.name,t.person,t.description].join(" ").toLowerCase().includes(q));
 
-  $("historyIncidentRows").innerHTML=closedIncidents.map(i=>`<tr class="history-incident">
-<td><span class="history-badge incident-badge">Incident</span></td><td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td>
+  $("historyIncidentRows").innerHTML=allIncidents.map(i=>`<tr class="history-incident ${i.historyType==="deleted"?"history-deleted":""}">
+<td><span class="history-badge incident-badge">${i.historyType==="deleted"?"Incident - حذف شده":"Incident"}</span></td><td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td>
 <td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td><td>${i.progress}%</td><td>${esc(i.description||"-")}</td>
 <td>${fa(i.f1)}</td><td>${fa(i.f2)}</td></tr>`).join("");
 
-  $("historyTaskRows").innerHTML=doneTasks.map(t=>`<tr class="history-task">
-<td><span class="history-badge task-badge">Task</span></td><td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td>
-<td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td><td>${fa(t.date)}</td><td>انجام شد</td><td class="elapsed">${elapsed(t.createdAt,t.completedAt)}</td></tr>`).join("");
+  $("historyTaskRows").innerHTML=allTasks.map(t=>`<tr class="history-task ${t.historyType==="deleted"?"history-deleted":""}">
+<td><span class="history-badge task-badge">${t.historyType==="deleted"?"Task - حذف شده":"Task"}</span></td><td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td>
+<td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td><td>${fa(t.date)}</td><td>${t.historyType==="deleted"?"حذف شده":"انجام شد"}</td><td class="elapsed">${elapsed(t.createdAt,t.completedAt)}</td></tr>`).join("");
 
-  $("emptyHI").style.display=closedIncidents.length?"none":"block";
-  $("emptyHT").style.display=doneTasks.length?"none":"block";
+  $("emptyHI").style.display=allIncidents.length?"none":"block";
+  $("emptyHT").style.display=allTasks.length?"none":"block";
 }
-
 function renderAll(){renderIncidents();renderTasks();renderHistory()}
 
 function openIncident(){
@@ -69,7 +71,13 @@ function editIncident(id){
   $("incidentDate").value=i.reg;$("contractor").value=i.contractor||"";$("follow1").value=i.f1||"";$("follow2").value=i.f2||"";
   $("incidentStatus").value=i.status;$("incidentProgress").value=i.progress;$("incidentDescription").value=i.description||"";$("incidentDlg").showModal()
 }
-function deleteIncident(id){if(confirm("این Incident حذف شود؟")){incidents=incidents.filter(x=>x.id!==id);save();renderAll()}}
+function deleteIncident(id){
+  if(confirm("این Incident حذف شود؟")){
+    let item=incidents.find(x=>x.id===id);
+    if(item) history.push({id:crypto.randomUUID(),type:"incident",action:"deleted",at:new Date().toISOString(),item:{...item}});
+    incidents=incidents.filter(x=>x.id!==id);save();renderAll();
+  }
+}
 
 $("incidentForm").onsubmit=e=>{
   e.preventDefault();let id=$("incidentId").value;
@@ -87,7 +95,13 @@ function editTask(id){
   $("taskId").value=id;$("taskTitle").textContent="ویرایش Task";$("taskName").value=t.name;$("taskTime").value=t.time;
   $("taskDescription").value=t.description||"";$("taskPerson").value=t.person||"";$("taskDate").value=t.date;$("taskStatus").value=t.status;$("taskDlg").showModal()
 }
-function deleteTask(id){if(confirm("این Task حذف شود؟")){tasks=tasks.filter(x=>x.id!==id);save();renderAll()}}
+function deleteTask(id){
+  if(confirm("این Task حذف شود؟")){
+    let item=tasks.find(x=>x.id===id);
+    if(item) history.push({id:crypto.randomUUID(),type:"task",action:"deleted",at:new Date().toISOString(),item:{...item}});
+    tasks=tasks.filter(x=>x.id!==id);save();renderAll();
+  }
+}
 
 $("taskForm").onsubmit=e=>{
   e.preventDefault();let id=$("taskId").value;
