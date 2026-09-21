@@ -14,10 +14,12 @@ function localISO(d){
   return `${y}-${m}-${day}`;
 }
 function shiftISO(iso,days){
+  // Use UTC for date-only arithmetic so daylight-saving changes can never
+  // make the picker jump by two days or block the forward button.
   const [y,m,d]=iso.split("-").map(Number);
-  const dt=new Date(y,m-1,d);
-  dt.setDate(dt.getDate()+days);
-  return localISO(dt);
+  const dt=new Date(Date.UTC(y,m-1,d));
+  dt.setUTCDate(dt.getUTCDate()+days);
+  return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,"0")}-${String(dt.getUTCDate()).padStart(2,"0")}`;
 }
 function fa(s){if(!s)return"-";return new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(s+"T00:00:00"))}
 function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -29,10 +31,9 @@ function incAge(i){if(i.status==="closed")return"";let h=(Date.now()-new Date(i.
 
 function renderIncidents(){
   $("dateI").textContent=fa(iDate);
-  // On today's main page, every unresolved Incident from today and previous days remains visible.
-  // When browsing another date, show that date's records as a historical view.
-  const isToday=iDate===today();
-  let list=incidents.filter(i=>isToday ? i.reg<=iDate : i.reg===iDate)
+  // An unresolved Incident stays on the main list on every date on/after
+  // its registration date until it is closed.
+  let list=incidents.filter(i=>i.reg<=iDate)
     .filter(i=>iFilter==="all"||i.status===iFilter)
     .filter(i=>i.status!=="closed");
   $("incidentRows").innerHTML=list.map(i=>`<tr class="${incAge(i)}">
@@ -48,10 +49,9 @@ function renderIncidents(){
 function taskStatusText(s){return s==="done"?"انجام شد":"انجام نشد"}
 function renderTasks(){
   $("dateT").textContent=fa(tDate);
-  // On today's main page, unfinished Tasks from previous days roll forward until done.
-  // Other selected dates remain useful as historical views.
-  const isToday=tDate===today();
-  let list=tasks.filter(t=>isToday ? t.date<=tDate : t.date===tDate).filter(t=>t.status!=="done");
+  // An unfinished Task stays on the main list on every date on/after
+  // its original date until it is marked done.
+  let list=tasks.filter(t=>t.date<=tDate).filter(t=>t.status!=="done");
   $("taskRows").innerHTML=list.map(t=>`<tr>
 <td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td><td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td>
 <td>${fa(t.date)}</td><td>${taskStatusText(t.status)}</td><td class="elapsed">${elapsed(t.createdAt,t.completedAt)}</td>

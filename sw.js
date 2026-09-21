@@ -1,4 +1,4 @@
-const CACHE_NAME = "incident-tracker-v9";
+const CACHE_NAME = "incident-tracker-v11";
 const APP_SHELL = ["./", "./index.html", "./style.css", "./app.js", "./manifest.json"];
 
 self.addEventListener("install", event => {
