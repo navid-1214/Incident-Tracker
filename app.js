@@ -5,7 +5,20 @@ let history=JSON.parse(localStorage.getItem(HK)||"[]");
 let iDate=today(),tDate=today(),iFilter="all";
 const $=id=>document.getElementById(id);
 
-function today(){let d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
+function today(){
+  const d=new Date();
+  return localISO(d);
+}
+function localISO(d){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function shiftISO(iso,days){
+  const [y,m,d]=iso.split("-").map(Number);
+  const dt=new Date(y,m-1,d);
+  dt.setDate(dt.getDate()+days);
+  return localISO(dt);
+}
 function fa(s){if(!s)return"-";return new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(s+"T00:00:00"))}
 function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function save(){localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks));localStorage.setItem(HK,JSON.stringify(history))}
@@ -16,7 +29,11 @@ function incAge(i){if(i.status==="closed")return"";let h=(Date.now()-new Date(i.
 
 function renderIncidents(){
   $("dateI").textContent=fa(iDate);
-  let list=incidents.filter(i=>i.reg===iDate).filter(i=>iFilter==="all"||i.status===iFilter)
+  // On today's main page, every unresolved Incident from today and previous days remains visible.
+  // When browsing another date, show that date's records as a historical view.
+  const isToday=iDate===today();
+  let list=incidents.filter(i=>isToday ? i.reg<=iDate : i.reg===iDate)
+    .filter(i=>iFilter==="all"||i.status===iFilter)
     .filter(i=>i.status!=="closed");
   $("incidentRows").innerHTML=list.map(i=>`<tr class="${incAge(i)}">
 <td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td>
@@ -25,12 +42,16 @@ function renderIncidents(){
 <td class="elapsed">${elapsed(i.createdAt,i.completedAt)}</td><td>${esc(i.description||"-")}</td>
 <td><div class="rowactions"><button onclick="editIncident('${i.id}')">ویرایش</button><button onclick="deleteIncident('${i.id}')">حذف</button></div></td></tr>`).join("");
   $("emptyI").style.display=list.length?"none":"block";
+  renderContractorStats();
 }
 
 function taskStatusText(s){return s==="done"?"انجام شد":"انجام نشد"}
 function renderTasks(){
   $("dateT").textContent=fa(tDate);
-  let list=tasks.filter(t=>t.date===tDate).filter(t=>t.status!=="done");
+  // On today's main page, unfinished Tasks from previous days roll forward until done.
+  // Other selected dates remain useful as historical views.
+  const isToday=tDate===today();
+  let list=tasks.filter(t=>isToday ? t.date<=tDate : t.date===tDate).filter(t=>t.status!=="done");
   $("taskRows").innerHTML=list.map(t=>`<tr>
 <td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td><td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td>
 <td>${fa(t.date)}</td><td>${taskStatusText(t.status)}</td><td class="elapsed">${elapsed(t.createdAt,t.completedAt)}</td>
@@ -59,7 +80,18 @@ function renderHistory(){
   $("emptyHI").style.display=allIncidents.length?"none":"block";
   $("emptyHT").style.display=allTasks.length?"none":"block";
 }
-function renderAll(){renderIncidents();renderTasks();renderHistory()}
+function renderContractorStats(){
+  const active=incidents.filter(i=>i.status!=="closed");
+  const names=["شعبه","فرنیروی شرق","لاوین اساک"];
+  names.forEach((name,idx)=>{
+    const el=$("count"+idx);
+    if(el) el.textContent=active.filter(i=>i.contractor===name).length;
+  });
+  const total=$("countTotal");
+  if(total) total.textContent=active.length;
+}
+
+function renderAll(){renderIncidents();renderTasks();renderHistory();renderContractorStats()}
 
 function openIncident(){
   $("incidentForm").reset();$("incidentId").value="";$("incidentTitle").textContent="ثبت Incident";
@@ -114,7 +146,11 @@ document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.c
 $("addIncident").onclick=openIncident;$("addTask").onclick=openTask;
 $("historySearch").oninput=renderHistory;
 
-function shift(which,days){let key=which==="i"?"iDate":"tDate",d=new Date((which==="i"?iDate:tDate)+"T00:00:00");d.setDate(d.getDate()+days);if(which==="i")iDate=d.toISOString().slice(0,10);else tDate=d.toISOString().slice(0,10);renderAll()}
+function shift(which,days){
+  if(which==="i") iDate=shiftISO(iDate,days);
+  else tDate=shiftISO(tDate,days);
+  renderAll();
+}
 $("prevI").onclick=()=>shift("i",-1);$("nextI").onclick=()=>shift("i",1);$("todayI").onclick=()=>{iDate=today();renderAll()};
 $("prevT").onclick=()=>shift("t",-1);$("nextT").onclick=()=>shift("t",1);$("todayT").onclick=()=>{tDate=today();renderAll()};
 

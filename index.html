@@ -35,6 +35,12 @@
     <th>تاریخ پیگیری ۱</th><th>تاریخ پیگیری ۲</th><th>وضعیت</th><th>درصد پیشرفت</th>
     <th>زمان سپری شده</th><th>توضیحات</th><th>عملیات</th>
   </tr></thead><tbody id="incidentRows"></tbody></table></div>
+  <div id="contractorStats" class="contractor-stats" aria-label="آمار Incident پیمانکارها">
+    <div class="stat-card stat-branch"><span>شعبه</span><b id="count0">0</b></div>
+    <div class="stat-card stat-east"><span>فرنیروی شرق</span><b id="count1">0</b></div>
+    <div class="stat-card stat-lavin"><span>لاوین اساک</span><b id="count2">0</b></div>
+    <div class="stat-card stat-total"><span>تعداد کل Incident</span><b id="countTotal">0</b></div>
+  </div>
   <div id="emptyI" class="empty">برای تاریخ انتخاب‌شده Incidentای ثبت نشده است.</div>
 </section>
 
@@ -85,7 +91,14 @@
 <label>شماره Incident<input id="incidentNo" required placeholder="INC-001"></label>
 <label>موضوع Incident<input id="incidentSubject" required></label>
 <label>تاریخ ثبت<input id="incidentDate" type="date" required></label>
-<label>پیمانکار<input id="contractor"></label>
+<label>پیمانکار
+  <select id="contractor" required>
+    <option value="">انتخاب پیمانکار</option>
+    <option value="شعبه">شعبه</option>
+    <option value="فرنیروی شرق">فرنیروی شرق</option>
+    <option value="لاوین اساک">لاوین اساک</option>
+  </select>
+</label>
 <label>تاریخ پیگیری ۱<input id="follow1" type="date"></label>
 <label>تاریخ پیگیری ۲<input id="follow2" type="date"></label>
 <label>وضعیت<select id="incidentStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label>

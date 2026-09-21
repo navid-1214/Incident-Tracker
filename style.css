@@ -47,3 +47,14 @@ input,select,textarea{display:block;width:100%;margin-top:6px;background:#191b20
 .task-badge{background:#321b48;color:#d8b2ff;border:1px solid #72429a}
 .history-deleted{opacity:.82}
 .history-deleted td{font-style:italic}
+
+/* Contractor statistics */
+.contractor-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.stat-card{background:#15171b;border:1px solid #292c32;border-radius:12px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;gap:5px;min-width:0}
+.stat-card span{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-card b{font-size:21px;font-variant-numeric:tabular-nums}
+.stat-branch span,.stat-branch b{color:#4da3ff}
+.stat-east span,.stat-east b{color:#ffb74d}
+.stat-lavin span,.stat-lavin b{color:#b56cff}
+.stat-total span,.stat-total b{color:#fff}
+@media(max-width:700px){.contractor-stats{grid-template-columns:repeat(2,1fr)}}
