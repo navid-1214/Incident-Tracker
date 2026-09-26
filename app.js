@@ -2,6 +2,9 @@ const IK="incident-tracker-v4-incidents",TK="incident-tracker-v4-tasks",HK="inci
 let incidents=JSON.parse(localStorage.getItem(IK)||"[]");
 let tasks=JSON.parse(localStorage.getItem(TK)||"[]");
 let history=JSON.parse(localStorage.getItem(HK)||"[]");
+const MK="incident-tracker-v1-msh-zones";
+let mshZones=JSON.parse(localStorage.getItem(MK)||"[]");
+let mshFilter="all";
 let iDate=today(),tDate=today(),iFilter="all",iContractorFilter="all";
 const $=id=>document.getElementById(id);
 
@@ -23,7 +26,7 @@ function shiftISO(iso,days){
 }
 function fa(s){if(!s)return"-";return new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(s+"T00:00:00"))}
 function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function save(){localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks));localStorage.setItem(HK,JSON.stringify(history))}
+function save(){localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks));localStorage.setItem(HK,JSON.stringify(history));localStorage.setItem(MK,JSON.stringify(mshZones))}
 function elapsed(iso,endIso){let end=endIso?new Date(endIso):new Date();let n=Math.max(0,Math.floor((end-new Date(iso))/1000)),h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":")}
 function incStatus(s){return s==="open"?"باز":s==="progress"?"در حال پیگیری":"اتمام کار"}
 function incDot(s){return s==="open"?"green":s==="progress"?"orange":"blue"}
@@ -169,4 +172,23 @@ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{
   let p=b.dataset.page;document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===p));
   document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===p));
 });
+
+function renderMsh(){
+  const q=($("mshSearch")?.value||"").trim();
+  const list=mshZones.filter(x=>mshFilter==="all"||x.contractor===mshFilter).filter(x=>!q||String(x.zone).includes(q));
+  ["لاوین اساک","فرنیرو","اریا برسام"].forEach((name,idx)=>{
+    const id=["mshCountLavin","mshCountFarniru","mshCountAria"][idx];
+    if($(id)) $(id).textContent=mshZones.filter(x=>x.contractor===name).length;
+  });
+  const box=$("mshResults");
+  if(!list.length){box.innerHTML=q?'<div class="msh-empty">زون موردنظر پیدا نشد.</div>':'<div class="msh-empty">برای نمایش زون‌ها، جستجو کنید یا یک پیمانکار را انتخاب کنید.</div>';return;}
+  box.innerHTML=list.map(x=>`<div class="msh-result"><span class="zone">زون ${esc(x.zone)}</span><span class="contractor">${esc(x.contractor)}</span></div>`).join("");
+}
+function openMsh(){mshFilter="all";document.querySelectorAll("[data-msh-contractor]").forEach(x=>x.classList.remove("active"));$("mshSearch").value="";renderMsh();$("mshDlg").showModal()}
+$("mshLauncher").onclick=openMsh;
+$("closeMsh").onclick=()=>$("mshDlg").close();
+$("mshAdd").onclick=()=>{$("mshForm").reset();$("mshFormDlg").showModal()};
+$("mshSearch").oninput=renderMsh;
+document.querySelectorAll("[data-msh-contractor]").forEach(b=>b.onclick=()=>{mshFilter=b.dataset.mshContractor;document.querySelectorAll("[data-msh-contractor]").forEach(x=>x.classList.toggle("active",x===b));renderMsh()});
+$("mshForm").onsubmit=e=>{e.preventDefault();const zone=$("mshZone").value.trim();const contractor=$("mshContractor").value;if(mshZones.some(x=>String(x.zone)===zone)){alert("این شماره زون قبلاً ثبت شده است.");return;}mshZones.push({id:crypto.randomUUID(),zone,contractor,createdAt:new Date().toISOString()});save();$("mshFormDlg").close();renderMsh()};
 setInterval(renderAll,1000);renderAll();

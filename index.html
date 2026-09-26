@@ -11,6 +11,7 @@
 <body>
 <header>
   <b>Incident Tracker</b>
+  <button id="mshLauncher" class="asiatech-logo" type="button" aria-label="MSH Zone Manager"><span class="logo-x">X</span><span class="logo-text">asiatech</span></button>
 </header>
 
 <main>
@@ -114,6 +115,27 @@
 <div class="actions"><button type="button" data-close="taskDlg">انصراف</button><button class="primary">ذخیره</button></div>
 </form></dialog>
 
+
+<dialog id="mshDlg" class="msh-dialog">
+  <div class="msh-page">
+    <div class="msh-head"><h3>MSH</h3><button type="button" id="closeMsh">×</button></div>
+    <div class="msh-search">🔎 <input id="mshSearch" type="search" inputmode="numeric" placeholder="جستجوی شماره زون"></div>
+    <button id="mshAdd" class="msh-box" type="button"><strong>MSH</strong><span>ثبت زون جدید</span></button>
+    <div class="msh-contractors">
+      <button type="button" class="msh-contractor lavin" data-msh-contractor="لاوین اساک"><span>لاوین اساک <b id="mshCountLavin">0</b></span></button>
+      <button type="button" class="msh-contractor farniru" data-msh-contractor="فرنیرو"><span>فرنیرو <b id="mshCountFarniru">0</b></span></button>
+      <button type="button" class="msh-contractor aria" data-msh-contractor="اریا برسام"><span>اریا برسام <b id="mshCountAria">0</b></span></button>
+    </div>
+    <div id="mshResults" class="msh-results"></div>
+  </div>
+</dialog>
+
+<dialog id="mshFormDlg"><form id="mshForm">
+  <div class="modalhead"><h3>ثبت MSH</h3><button type="button" data-close="mshFormDlg">×</button></div>
+  <label>شماره زون<input id="mshZone" inputmode="numeric" required placeholder="مثلاً 110"></label>
+  <label>نام پیمانکار<select id="mshContractor" required><option value="">انتخاب پیمانکار</option><option value="لاوین اساک">لاوین اساک</option><option value="فرنیرو">فرنیرو</option><option value="اریا برسام">اریا برسام</option></select></label>
+  <div class="actions"><button type="button" data-close="mshFormDlg">انصراف</button><button class="primary">ذخیره</button></div>
+</form></dialog>
 <script src="app.js"></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
 </body>

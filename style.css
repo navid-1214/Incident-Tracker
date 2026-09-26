@@ -62,3 +62,19 @@ input,select,textarea{display:block;width:100%;margin-top:6px;background:#191b20
 .stat-lavin span,.stat-lavin b{color:#b56cff}
 .stat-total span,.stat-total b{color:#fff}
 @media(max-width:700px){.contractor-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.contractor-stats .stat{padding:6px 2px;font-size:11px}.contractor-stats .stat b{font-size:12px}}
+
+/* MSH / Zone Manager — additive only; existing Incident Tracker layout is unchanged */
+header{position:relative}
+.asiatech-logo{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;border:1px solid #3b3b40;background:#151518;color:#fff;display:flex;align-items:center;justify-content:center;gap:2px;padding:0;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.asiatech-logo .logo-x{font-weight:900;font-size:12px;letter-spacing:-3px;transform:skew(-12deg);margin-left:-2px}
+.asiatech-logo .logo-text{font-size:6px;font-weight:800;letter-spacing:-.3px;margin-left:1px}
+.msh-dialog{width:min(94vw,520px);height:min(88vh,760px);padding:0;border:1px solid #303035;border-radius:22px;background:#0d0d10;color:#fff;box-shadow:0 20px 80px rgba(0,0,0,.65)}
+.msh-dialog::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(4px)}
+.msh-page{height:100%;display:flex;flex-direction:column;padding:18px;box-sizing:border-box;overflow:auto}
+.msh-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.msh-head h3{margin:0;font-size:22px}.msh-head button{border:0;background:#222227;color:#fff;border-radius:50%;width:34px;height:34px;font-size:24px;cursor:pointer}
+.msh-search{display:flex;align-items:center;gap:8px;background:#19191e;border:1px solid #303036;border-radius:13px;padding:11px 13px;margin-bottom:14px}.msh-search input{flex:1;background:transparent;border:0;outline:0;color:#fff;font-size:15px;direction:rtl}.msh-search input::placeholder{color:#8e8e98}
+.msh-box{width:100%;text-align:right;background:#17171b;border:1px solid #37373e;color:#fff;border-radius:15px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:15px}.msh-box strong{font-size:18px}.msh-box span{color:#aaa;font-size:13px}
+.msh-contractors{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:15px}.msh-contractor{border:1px solid #33343a;background:#17171b;color:#fff;border-radius:13px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}.msh-contractor span{font-size:12px}.msh-contractor span b{font-size:14px;margin-right:3px}.msh-contractor>b{font-size:19px}.msh-contractor.active{outline:2px solid #777}
+.msh-results{display:flex;flex-direction:column;gap:8px}.msh-result{background:#17171b;border:1px solid #2d2d33;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center}.msh-result .zone{font-weight:800}.msh-result .contractor{color:#bbb;font-size:13px}
+.msh-empty{text-align:center;color:#777;padding:28px 10px;font-size:13px}
+@media(max-width:420px){.msh-contractors{gap:5px}.msh-contractor{padding:10px 3px}.msh-contractor span{font-size:11px}}
