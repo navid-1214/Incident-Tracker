@@ -174,15 +174,32 @@ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{
 });
 
 function renderMsh(){
-  const q=($("mshSearch")?.value||"").trim();
-  const list=mshZones.filter(x=>mshFilter==="all"||x.contractor===mshFilter).filter(x=>!q||String(x.zone).includes(q));
+  const q=($('mshSearch')?.value||'').trim();
   ["لاوین اساک","فرنیرو","اریا برسام"].forEach((name,idx)=>{
     const id=["mshCountLavin","mshCountFarniru","mshCountAria"][idx];
     if($(id)) $(id).textContent=mshZones.filter(x=>x.contractor===name).length;
   });
   const box=$("mshResults");
-  if(!list.length){box.innerHTML=q?'<div class="msh-empty">زون موردنظر پیدا نشد.</div>':'<div class="msh-empty">برای نمایش زون‌ها، جستجو کنید یا یک پیمانکار را انتخاب کنید.</div>';return;}
-  box.innerHTML=list.map(x=>`<div class="msh-result"><span class="zone">زون ${esc(x.zone)}</span><span class="contractor">${esc(x.contractor)}</span></div>`).join("");
+  // On opening MSH Zone Manager, keep the zone list hidden.
+  // Zones appear only after selecting a contractor or searching.
+  if(mshFilter==="all" && !q){
+    box.innerHTML='';
+    return;
+  }
+  const list=mshZones
+    .filter(x=>mshFilter==="all"||x.contractor===mshFilter)
+    .filter(x=>!q||String(x.zone).includes(q));
+  if(!list.length){box.innerHTML='<div class="msh-empty">زون موردنظر پیدا نشد.</div>';return;}
+  box.innerHTML=list.map(x=>`<div class="msh-result"><span class="zone">زون ${esc(x.zone)}</span><span class="contractor">${esc(x.contractor)}</span><button type="button" class="msh-delete" data-msh-delete="${esc(x.id)}" aria-label="حذف زون">🗑️</button></div>`).join("");
+  box.querySelectorAll('[data-msh-delete]').forEach(btn=>btn.onclick=()=>{
+    const id=btn.dataset.mshDelete;
+    const item=mshZones.find(x=>x.id===id);
+    if(!item)return;
+    if(!confirm(`زون ${item.zone} حذف شود؟`))return;
+    mshZones=mshZones.filter(x=>x.id!==id);
+    save();
+    renderMsh();
+  });
 }
 function openMsh(){mshFilter="all";document.querySelectorAll("[data-msh-contractor]").forEach(x=>x.classList.remove("active"));$("mshSearch").value="";renderMsh();$("mshDlg").showModal()}
 $("mshLauncher").onclick=openMsh;
