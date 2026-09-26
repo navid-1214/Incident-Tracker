@@ -50,9 +50,13 @@ input,select,textarea{display:block;width:100%;margin-top:6px;background:#191b20
 
 /* Contractor statistics */
 .contractor-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
-.stat-card{background:#15171b;border:1px solid #292c32;border-radius:12px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;gap:5px;min-width:0}
+.stat-card{background:#15171b;border:1px solid #292c32;border-radius:12px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;gap:5px;min-width:0;cursor:pointer;font:inherit;transition:border-color .15s,box-shadow .15s,transform .15s}
+.stat-card:active{transform:scale(.98)}
+.stat-card.active{border-color:#777;box-shadow:0 0 0 1px #555 inset}
+.stat-card:focus-visible{outline:2px solid #fff;outline-offset:1px}
 .stat-card span{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stat-card b{font-size:21px;font-variant-numeric:tabular-nums}
+.stat-card span,.stat-card b{pointer-events:none}
 .stat-branch span,.stat-branch b{color:#4da3ff}
 .stat-east span,.stat-east b{color:#ffb74d}
 .stat-lavin span,.stat-lavin b{color:#b56cff}

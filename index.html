@@ -30,11 +30,11 @@
     <th>تاریخ پیگیری ۱</th><th>تاریخ پیگیری ۲</th><th>وضعیت</th><th>درصد پیشرفت</th>
     <th>زمان سپری شده</th><th>توضیحات</th><th>عملیات</th>
   </tr></thead><tbody id="incidentRows"></tbody></table></div>
-  <div id="contractorStats" class="contractor-stats" aria-label="آمار Incident پیمانکارها">
-    <div class="stat-card stat-branch"><span>شعبه</span><b id="count0">0</b></div>
-    <div class="stat-card stat-east"><span>فرنیروی شرق</span><b id="count1">0</b></div>
-    <div class="stat-card stat-lavin"><span>لاوین اساک</span><b id="count2">0</b></div>
-    <div class="stat-card stat-total"><span>تعداد کل Incident</span><b id="countTotal">0</b></div>
+  <div id="contractorStats" class="contractor-stats" aria-label="فیلتر و آمار Incident پیمانکارها">
+    <button type="button" class="stat-card stat-branch" data-contractor-filter="شعبه"><span>شعبه</span><b id="count0">0</b></button>
+    <button type="button" class="stat-card stat-east" data-contractor-filter="فرنیروی شرق"><span>فرنیروی شرق</span><b id="count1">0</b></button>
+    <button type="button" class="stat-card stat-lavin" data-contractor-filter="لاوین اساک"><span>لاوین اساک</span><b id="count2">0</b></button>
+    <button type="button" class="stat-card stat-total active" data-contractor-filter="all"><span>تعداد کل Incident</span><b id="countTotal">0</b></button>
   </div>
   <div id="emptyI" class="empty">برای تاریخ انتخاب‌شده Incident ثبت نشده است.</div>
 </section>

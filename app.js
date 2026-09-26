@@ -2,7 +2,7 @@ const IK="incident-tracker-v4-incidents",TK="incident-tracker-v4-tasks",HK="inci
 let incidents=JSON.parse(localStorage.getItem(IK)||"[]");
 let tasks=JSON.parse(localStorage.getItem(TK)||"[]");
 let history=JSON.parse(localStorage.getItem(HK)||"[]");
-let iDate=today(),tDate=today(),iFilter="all";
+let iDate=today(),tDate=today(),iFilter="all",iContractorFilter="all";
 const $=id=>document.getElementById(id);
 
 function today(){
@@ -35,7 +35,8 @@ function renderIncidents(){
   // its registration date until it is closed.
   let list=incidents.filter(i=>i.reg<=iDate)
     .filter(i=>iFilter==="all"||i.status===iFilter)
-    .filter(i=>i.status!=="closed");
+    .filter(i=>i.status!=="closed")
+    .filter(i=>iContractorFilter==="all"||i.contractor===iContractorFilter);
   $("incidentRows").innerHTML=list.map(i=>`<tr class="${incAge(i)}">
 <td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td>
 <td>${fa(i.f1)}</td><td>${fa(i.f2)}</td><td class="status"><i class="${incDot(i.status)}"></i>${incStatus(i.status)}</td>
@@ -80,6 +81,14 @@ function renderHistory(){
   $("emptyHI").style.display=allIncidents.length?"none":"block";
   $("emptyHT").style.display=allTasks.length?"none":"block";
 }
+function setContractorFilter(name){
+  iContractorFilter=name;
+  document.querySelectorAll("[data-contractor-filter]").forEach(el=>{
+    el.classList.toggle("active",el.dataset.contractorFilter===name);
+  });
+  renderIncidents();
+}
+
 function renderContractorStats(){
   const active=incidents.filter(i=>i.status!=="closed");
   const names=["شعبه","فرنیروی شرق","لاوین اساک"];
@@ -155,6 +164,7 @@ $("prevI").onclick=()=>shift("i",-1);$("nextI").onclick=()=>shift("i",1);$("toda
 $("prevT").onclick=()=>shift("t",-1);$("nextT").onclick=()=>shift("t",1);$("todayT").onclick=()=>{tDate=today();renderAll()};
 
 document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");iFilter=b.dataset.status;renderIncidents()});
+document.querySelectorAll("[data-contractor-filter]").forEach(b=>b.onclick=()=>setContractorFilter(b.dataset.contractorFilter));
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{
   let p=b.dataset.page;document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===p));
   document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===p));
