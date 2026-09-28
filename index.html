@@ -82,7 +82,14 @@
 </nav>
 
 <dialog id="incidentDlg"><form id="incidentForm">
-<div class="modalhead"><h3 id="incidentTitle">ثبت Incident</h3><button type="button" data-close="incidentDlg">×</button></div>
+<div class="modalhead">
+  <h3 id="incidentTitle">ثبت Incident</h3>
+  <div class="modaltools">
+    <button type="button" id="xlsxImportBtn" class="xlsx-btn">xlsx</button>
+    <button type="button" data-close="incidentDlg">×</button>
+  </div>
+</div>
+<input id="xlsxFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
 <input type="hidden" id="incidentId">
 <label>شماره Incident<input id="incidentNo" required placeholder="INC-001"></label>
 <label>موضوع Incident<input id="incidentSubject" required></label>
@@ -92,6 +99,7 @@
     <option value="">انتخاب پیمانکار</option>
     <option value="شعبه">شعبه</option>
     <option value="فرنیروی شرق">فرنیروی شرق</option>
+    <option value="فرنیرو">فرنیرو</option>
     <option value="لاوین اساک">لاوین اساک</option>
   </select>
 </label>
@@ -136,6 +144,7 @@
   <label>نام پیمانکار<select id="mshContractor" required><option value="">انتخاب پیمانکار</option><option value="لاوین اساک">لاوین اساک</option><option value="فرنیرو">فرنیرو</option><option value="اریا برسام">اریا برسام</option></select></label>
   <div class="actions"><button type="button" data-close="mshFormDlg">انصراف</button><button class="primary">ذخیره</button></div>
 </form></dialog>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="app.js"></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
 </body>
