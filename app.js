@@ -32,6 +32,15 @@ function incStatus(s){return s==="open"?"باز":s==="progress"?"در حال پ�
 function incDot(s){return s==="open"?"green":s==="progress"?"orange":"blue"}
 function incAge(i){if(i.status==="closed")return"";let h=(Date.now()-new Date(i.createdAt))/36e5;return h>=48?"age-red":h>=24?"age-orange":""}
 
+function displayIncidentNumber(no){
+  const s=normalizeIncidentNumber(no);
+  return s.replace(/^INC[-\s:]*/i,"").trim() || s;
+}
+function normalizeIncidentNumber(no){
+  return String(no??"").replace(/\s+/g," ").trim();
+}
+function persianNumber(n){return String(n).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);}
+
 function renderIncidents(){
   $("dateI").textContent=fa(iDate);
   // An unresolved Incident stays on the main list on every date on/after
@@ -40,12 +49,12 @@ function renderIncidents(){
     .filter(i=>iFilter==="all"||i.status===iFilter)
     .filter(i=>i.status!=="closed")
     .filter(i=>iContractorFilter==="all"||(iContractorFilter==="فرنیروی شرق" && (i.contractor==="فرنیروی شرق"||i.contractor==="فرنیرو"))||i.contractor===iContractorFilter);
-  $("incidentRows").innerHTML=list.map(i=>`<tr class="${incAge(i)}">
-<td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td>
+  $("incidentRows").innerHTML=list.map(i=>`<tr class="${incAge(i)}" data-id="${esc(i.id)}">
+<td class="incident-number"><b>INC-</b><span>${esc(displayIncidentNumber(i.no))}</span></td><td>${esc(i.subject)}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td>
 <td>${fa(i.f1)}</td><td>${completionDateText(i)}</td><td class="status"><i class="${incDot(i.status)}"></i>${incStatus(i.status)}</td>
 <td class="progress">${i.progress}%<div class="bar"><span style="width:${i.progress}%"></span></div></td>
 <td class="elapsed">${elapsed(i.createdAt,i.completedAt)}</td><td>${esc(i.description||"-")}</td>
-<td><div class="rowactions"><button class="icon-edit" onclick="editIncident('${i.id}')" aria-label="ویرایش" title="ویرایش">✏️</button><button class="icon-delete" onclick="deleteIncident('${i.id}')" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
+<td><div class="rowactions"><button type="button" class="icon-edit" data-id="${esc(i.id)}" aria-label="ویرایش" title="ویرایش">✏️</button><button type="button" class="icon-delete" data-id="${esc(i.id)}" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
   $("emptyI").style.display=list.length?"none":"block";
   renderContractorStats();
 }
@@ -56,10 +65,10 @@ function renderTasks(){
   // An unfinished Task stays on the main list on every date on/after
   // its original date until it is marked done.
   let list=tasks.filter(t=>t.date<=tDate).filter(t=>t.status!=="done");
-  $("taskRows").innerHTML=list.map(t=>`<tr>
+  $("taskRows").innerHTML=list.map(t=>`<tr data-id="${esc(t.id)}">
 <td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td><td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td>
 <td>${fa(t.date)}</td><td>${taskStatusText(t.status)}</td><td class="elapsed">${elapsed(t.createdAt,t.completedAt)}</td>
-<td><div class="rowactions"><button class="icon-edit" onclick="editTask('${t.id}')" aria-label="ویرایش" title="ویرایش">✏️</button><button class="icon-delete" onclick="deleteTask('${t.id}')" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
+<td><div class="rowactions"><button type="button" class="icon-edit" data-task-id="${esc(t.id)}" aria-label="ویرایش" title="ویرایش">✏️</button><button type="button" class="icon-delete" data-task-id="${esc(t.id)}" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
   $("emptyT").style.display=list.length?"none":"block";
 }
 
@@ -96,11 +105,12 @@ function renderHistory(){
   const q=($("historySearch")?.value||"").toLowerCase().trim();
   const allIncidents=historyIncidentItems().filter(i=>!q||[i.no,i.subject,i.contractor,i.description].join(" ").toLowerCase().includes(q));
   $("historyIncidentRows").innerHTML=allIncidents.map(i=>`<tr class="history-incident ${i.historyType==="deleted"?"history-deleted":""}" data-history-id="${esc(i.id)}" tabindex="0" role="button" aria-label="نمایش جزئیات ${esc(i.no)}">
-<td><span class="history-badge incident-badge">${i.historyType==="deleted"?"Incident - حذف شده":"Incident"}</span></td><td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td>
+<td><span class="history-badge incident-badge">${i.historyType==="deleted"?"Incident - حذف شده":"Incident"}</span></td><td class="incident-number"><b>INC-</b><span>${esc(displayIncidentNumber(i.no))}</span></td><td>${esc(i.subject)}</td>
 <td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td><td>${i.progress}%</td><td>${esc(i.description||"-")}</td>
 <td>${fa(i.f1)}</td><td>${completionDateText(i)}</td></tr>`).join("");
   $("emptyHI").style.display=allIncidents.length?"none":"block";
   renderContractorPerformance();
+  renderContractorLineChart();
   document.querySelectorAll("[data-history-id]").forEach(row=>{
     const open=()=>openHistoryIncident(row.dataset.historyId);
     row.onclick=open;
@@ -145,6 +155,50 @@ function renderContractorPerformance(){
   </article>`).join("");
 }
 
+function renderContractorLineChart(){
+  const canvas=$("contractorLineChart");
+  if(!canvas)return;
+  const ctx=canvas.getContext("2d");
+  const rect=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  const w=Math.max(320,Math.floor(rect.width));
+  const h=230;
+  canvas.width=w*dpr; canvas.height=h*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+
+  const names=["شعبه","فرنیروی شرق","لاوین اساک"];
+  const values=names.map(name=>{
+    const vals=historyIncidentItems().filter(i=>i.status==="closed"&&i.contractor===name).map(incidentCompletionMs).filter(v=>v!==null);
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length/3600000 : null;
+  });
+  const all=historyIncidentItems().filter(i=>i.status==="closed").map(incidentCompletionMs).filter(v=>v!==null);
+  values.push(all.length?all.reduce((a,b)=>a+b,0)/all.length/3600000:null);
+  const labels=[...names,"کل"];
+  const valid=values.filter(v=>v!==null);
+  const max=Math.max(1,...valid)*1.2;
+  const pad={l:42,r:16,t:20,b:42};
+  const plotW=w-pad.l-pad.r, plotH=h-pad.t-pad.b;
+  ctx.strokeStyle="#30333a"; ctx.lineWidth=1;
+  ctx.fillStyle="#858894"; ctx.font="10px -apple-system,BlinkMacSystemFont,Segoe UI,Tahoma,sans-serif";
+  ctx.textAlign="right";
+  for(let k=0;k<=4;k++){
+    const y=pad.t+plotH-(plotH*k/4);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+    ctx.fillText((max*k/4).toFixed(1)+"h",pad.l-6,y+3);
+  }
+  const xs=labels.map((_,i)=>pad.l+(plotW*(i/(labels.length-1))));
+  ctx.textAlign="center"; labels.forEach((label,i)=>ctx.fillText(label,xs[i],h-14));
+  ctx.strokeStyle="#6b7280";ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,pad.t+plotH);ctx.lineTo(w-pad.r,pad.t+plotH);ctx.stroke();
+  const points=values.map((v,i)=>v===null?null:{x:xs[i],y:pad.t+plotH-(v/max)*plotH});
+  ctx.strokeStyle="#d7d9de";ctx.lineWidth=2;ctx.beginPath();
+  let started=false;
+  points.forEach(pt=>{if(!pt){started=false;return;} if(!started){ctx.moveTo(pt.x,pt.y);started=true;}else ctx.lineTo(pt.x,pt.y);});
+  ctx.stroke();
+  points.forEach((pt,i)=>{if(!pt)return;ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(pt.x,pt.y,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#d7d9de";ctx.stroke();ctx.fillStyle="#fff";ctx.font="bold 10px -apple-system,BlinkMacSystemFont,Segoe UI,Tahoma,sans-serif";ctx.fillText(values[i].toFixed(1)+"h",pt.x,pt.y-9);});
+  if(!valid.length){ctx.fillStyle="#777b86";ctx.font="12px -apple-system,BlinkMacSystemFont,Segoe UI,Tahoma,sans-serif";ctx.textAlign="center";ctx.fillText("برای رسم نمودار هنوز Incident تکمیل‌شده با زمان معتبر وجود ندارد.",w/2,h/2);}
+}
+
 function setContractorFilter(name){
   iContractorFilter=name;
   document.querySelectorAll("[data-contractor-filter]").forEach(el=>{
@@ -165,6 +219,17 @@ function renderContractorStats(){
 }
 
 function renderAll(){renderIncidents();renderTasks();renderHistory();renderContractorStats()}
+
+document.addEventListener("click",e=>{
+  const edit=e.target.closest("#incidentRows .icon-edit");
+  if(edit){e.preventDefault();e.stopPropagation();const row=edit.closest("tr");const id=row?.dataset?.id||edit.dataset.id;if(id) editIncident(id);}
+  const del=e.target.closest("#incidentRows .icon-delete");
+  if(del){e.preventDefault();e.stopPropagation();const row=del.closest("tr");const id=row?.dataset?.id||del.dataset.id;if(id) deleteIncident(id);}
+  const tedit=e.target.closest("#taskRows .icon-edit");
+  if(tedit){e.preventDefault();e.stopPropagation();const id=tedit.dataset.taskId||tedit.closest("tr")?.dataset?.id;if(id) editTask(id);}
+  const tdel=e.target.closest("#taskRows .icon-delete");
+  if(tdel){e.preventDefault();e.stopPropagation();const id=tdel.dataset.taskId||tdel.closest("tr")?.dataset?.id;if(id) deleteTask(id);}
+});
 
 function openIncident(){
   $("incidentForm").reset();$("incidentId").value="";$("incidentTitle").textContent="ثبت Incident";
@@ -350,9 +415,12 @@ async function importIncidentsFromXlsx(file){
     if(imported.length) save();
     renderAll();
 
-    let msg=`${imported.length} Incident با موفقیت وارد شد.`;
-    if(skippedDuplicate.length) msg+=`\n${skippedDuplicate.length} مورد به دلیل شماره Incident تکراری وارد نشد.`;
-    if(skippedInvalid.length) msg+=`\n${skippedInvalid.length} ردیف بدون شماره Incident نادیده گرفته شد.`;
+    let msg=`${persianNumber(imported.length)} مورد با موفقیت وارد شد.`;
+    if(skippedDuplicate.length){
+      msg+=`\n${persianNumber(skippedDuplicate.length)} مورد تکراری وارد نشد.`;
+      msg+=`\nشماره‌های تکراری: ${skippedDuplicate.map(x=>"INC-"+displayIncidentNumber(x)).join("، ")}`;
+    }
+    if(skippedInvalid.length) msg+=`\n${persianNumber(skippedInvalid.length)} ردیف بدون شماره Incident نادیده گرفته شد.`;
     alert(msg);
   }catch(err){
     console.error(err);
