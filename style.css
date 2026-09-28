@@ -21,7 +21,7 @@ th{background:#17191e;color:#bbb}
 tr.age-orange{background:#332414}tr.age-red{background:#351719}
 .progress{min-width:100px}.bar{height:6px;background:#2b2d33;border-radius:8px;margin-top:5px;overflow:hidden}.bar span{display:block;height:100%;background:#ddd}
 .elapsed{white-space:nowrap;font-variant-numeric:tabular-nums}
-.rowactions{display:flex;gap:5px}.rowactions button{background:#202229;color:#fff;border:1px solid #33363e;border-radius:8px;padding:6px}
+.rowactions{display:flex;gap:5px;align-items:center}.rowactions button{background:#202229;color:#fff;border:1px solid #33363e;border-radius:8px;width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;line-height:1}.rowactions button:active{transform:scale(.94)}.rowactions .icon-edit{color:#dbe7ff}.rowactions .icon-delete{color:#ff9aa3}
 .empty{text-align:center;color:#777;padding:28px}
 footer{text-align:center;color:#777;font-size:10px;line-height:1.6;padding:10px 8px 12px;margin-top:8px;border-top:1px solid #202228}
 .bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;background:#111216;border-top:1px solid #292c32;padding:8px;gap:7px}.bottom button{flex:1}
@@ -85,3 +85,62 @@ header{position:relative}
 .toolbar-actions{display:flex;gap:8px;align-items:center}
 .xlsx-toolbar-btn{border:1px solid #555;background:#222;color:#fff;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer}
 @media(max-width:600px){.toolbar-actions{gap:6px}.xlsx-toolbar-btn{padding:8px 9px;font-size:12px}}
+
+/* Requested Incident subject size */
+#incidentRows td:nth-child(2){font-size:10px}
+
+/* Final Incident Tracker refinements */
+header{padding:6px 12px}
+header b{font-size:14px}
+.filters{padding:9px 0}
+.all-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:5px;background:#777}
+/* Elapsed-time color affects text only; row backgrounds remain time-independent. */
+#incidentRows tr.age-orange td,#incidentRows tr.age-orange td b,#incidentRows tr.age-orange .status,#incidentRows tr.age-orange .elapsed{color:#ffad4d}
+#incidentRows tr.age-red td,#incidentRows tr.age-red td b,#incidentRows tr.age-red .status,#incidentRows tr.age-red .elapsed{color:#ff626d}
+#incidentRows tr.age-orange .status i,#incidentRows tr.age-red .status i{color:initial}
+#incidentRows tr.age-orange,#incidentRows tr.age-red{background:transparent}
+#incidentRows tr:nth-child(1) td{background:#121419}
+#incidentRows tr:nth-child(2) td{background:#111318}
+#incidentRows tr:nth-child(3) td{background:#101217}
+#incidentRows tr:nth-child(4) td{background:#0f1116}
+#incidentRows tr:nth-child(5) td{background:#0e1015}
+#incidentRows tr:nth-child(n+6) td{background:#0d0f14}
+#incidentRows .rowactions button{background:transparent}
+#incidentRows .age-orange .rowactions .icon-edit,#incidentRows .age-orange .rowactions .icon-delete{color:#ffad4d}
+#incidentRows .age-red .rowactions .icon-edit,#incidentRows .age-red .rowactions .icon-delete{color:#ff626d}
+
+/* History detail */
+.history-incident{cursor:pointer}
+.history-incident:focus-visible{outline:2px solid #4da3ff;outline-offset:-2px}
+.history-detail-dialog{width:min(560px,calc(100% - 22px));max-height:88vh;overflow:auto}
+.history-detail{padding:17px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.detail-grid>div{background:#17191e;border:1px solid #292c32;border-radius:10px;padding:10px}
+.detail-grid span{display:block;color:#7f838d;font-size:11px;margin-bottom:5px}
+.detail-grid b{display:block;color:#fff;font-size:13px;line-height:1.7}
+.detail-wide{grid-column:1/-1}
+.detail-wide p{margin:0;color:#ddd;font-size:13px;line-height:1.8;white-space:pre-wrap}
+
+/* Contractor performance cards in Incident History */
+.performance-title{border-right:4px solid #25d366}.performance-title span{background:#25d366}
+.contractor-performance{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.performance-card{background:#15171b;border:1px solid #292c32;border-radius:13px;padding:12px;min-width:0}
+.performance-top{display:flex;align-items:center;gap:7px;font-size:13px}
+.performance-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.performance-branch{border-top:3px solid #4da3ff}.performance-branch .performance-dot{background:#4da3ff}.performance-branch .performance-time{color:#4da3ff}
+.performance-east{border-top:3px solid #ffb74d}.performance-east .performance-dot{background:#ffb74d}.performance-east .performance-time{color:#ffb74d}
+.performance-lavin{border-top:3px solid #b56cff}.performance-lavin .performance-dot{background:#b56cff}.performance-lavin .performance-time{color:#b56cff}
+.performance-time{font-size:17px;font-weight:900;margin-top:12px;line-height:1.5}
+.performance-label{font-size:10px;color:#858894;margin-bottom:10px}
+.performance-meta{display:flex;justify-content:space-between;gap:8px;padding-top:7px;margin-top:7px;border-top:1px solid #252830;font-size:10px;color:#999da7}
+.performance-meta b{color:#fff;font-size:12px}
+.performance-note{margin-top:8px;background:#121419;border:1px solid #252830;border-radius:10px;padding:9px 11px;color:#858894;font-size:10px;line-height:1.8}
+@media(max-width:700px){
+  .contractor-performance{grid-template-columns:1fr}
+  .performance-card{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:10px}
+  .performance-top{grid-column:1/-1}
+  .performance-time{margin-top:8px;font-size:16px}
+  .performance-label{margin:0;align-self:end}
+  .performance-meta{grid-column:1/-1}
+  .performance-note{font-size:9px}
+}

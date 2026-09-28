@@ -42,10 +42,10 @@ function renderIncidents(){
     .filter(i=>iContractorFilter==="all"||(iContractorFilter==="فرنیروی شرق" && (i.contractor==="فرنیروی شرق"||i.contractor==="فرنیرو"))||i.contractor===iContractorFilter);
   $("incidentRows").innerHTML=list.map(i=>`<tr class="${incAge(i)}">
 <td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td>
-<td>${fa(i.f1)}</td><td>${fa(i.f2)}</td><td class="status"><i class="${incDot(i.status)}"></i>${incStatus(i.status)}</td>
+<td>${fa(i.f1)}</td><td>${completionDateText(i)}</td><td class="status"><i class="${incDot(i.status)}"></i>${incStatus(i.status)}</td>
 <td class="progress">${i.progress}%<div class="bar"><span style="width:${i.progress}%"></span></div></td>
 <td class="elapsed">${elapsed(i.createdAt,i.completedAt)}</td><td>${esc(i.description||"-")}</td>
-<td><div class="rowactions"><button onclick="editIncident('${i.id}')">ویرایش</button><button onclick="deleteIncident('${i.id}')">حذف</button></div></td></tr>`).join("");
+<td><div class="rowactions"><button class="icon-edit" onclick="editIncident('${i.id}')" aria-label="ویرایش" title="ویرایش">✏️</button><button class="icon-delete" onclick="deleteIncident('${i.id}')" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
   $("emptyI").style.display=list.length?"none":"block";
   renderContractorStats();
 }
@@ -59,31 +59,92 @@ function renderTasks(){
   $("taskRows").innerHTML=list.map(t=>`<tr>
 <td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td><td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td>
 <td>${fa(t.date)}</td><td>${taskStatusText(t.status)}</td><td class="elapsed">${elapsed(t.createdAt,t.completedAt)}</td>
-<td><div class="rowactions"><button onclick="editTask('${t.id}')">ویرایش</button><button onclick="deleteTask('${t.id}')">حذف</button></div></td></tr>`).join("");
+<td><div class="rowactions"><button class="icon-edit" onclick="editTask('${t.id}')" aria-label="ویرایش" title="ویرایش">✏️</button><button class="icon-delete" onclick="deleteTask('${t.id}')" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
   $("emptyT").style.display=list.length?"none":"block";
 }
 
+function formatDuration(ms){
+  if(!Number.isFinite(ms)||ms<0) return "-";
+  const totalMinutes=Math.floor(ms/60000), days=Math.floor(totalMinutes/1440), hours=Math.floor((totalMinutes%1440)/60), minutes=totalMinutes%60;
+  if(days>0) return `${days} روز و ${hours} ساعت و ${minutes} دقیقه`;
+  if(hours>0) return `${hours} ساعت و ${minutes} دقیقه`;
+  return `${minutes} دقیقه`;
+}
+function completionDateText(i){
+  if(!i.completedAt) return "-";
+  const d=new Date(i.completedAt);
+  if(Number.isNaN(d.getTime())) return "-";
+  return `${new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"2-digit",day:"2-digit"}).format(d)} - ${d.toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"})}`;
+}
+function incidentCompletionMs(i){
+  if(!i?.createdAt||!i?.completedAt) return null;
+  const start=new Date(i.createdAt).getTime(), end=new Date(i.completedAt).getTime();
+  if(!Number.isFinite(start)||!Number.isFinite(end)||end<start) return null;
+  return end-start;
+}
+function historyIncidentItems(){
+  const closed=incidents.filter(i=>i.status==="closed").map(i=>({...i,historyType:"completed"}));
+  const deleted=history.filter(x=>x.type==="incident").map(x=>({...x.item,historyType:"deleted",deletedAt:x.at}));
+  const seen=new Set(), out=[];
+  [...closed,...deleted].forEach(i=>{
+    const key=i.id||`${i.no}|${i.createdAt||i.reg}`;
+    if(!seen.has(key)){seen.add(key);out.push(i)}
+  });
+  return out;
+}
 function renderHistory(){
-  let q=($("historySearch")?.value||"").toLowerCase().trim();
-  let closedIncidents=incidents.filter(i=>i.status==="closed").map(i=>({...i,historyType:"completed"}));
-  let deletedIncidents=history.filter(x=>x.type==="incident").map(x=>({...x.item,historyType:"deleted"}));
-  let allIncidents=[...closedIncidents,...deletedIncidents].filter(i=>!q||[i.no,i.subject,i.contractor,i.description].join(" ").toLowerCase().includes(q));
-  let doneTasks=tasks.filter(t=>t.status==="done").map(t=>({...t,historyType:"completed"}));
-  let deletedTasks=history.filter(x=>x.type==="task").map(x=>({...x.item,historyType:"deleted"}));
-  let allTasks=[...doneTasks,...deletedTasks].filter(t=>!q||[t.name,t.person,t.description].join(" ").toLowerCase().includes(q));
-
-  $("historyIncidentRows").innerHTML=allIncidents.map(i=>`<tr class="history-incident ${i.historyType==="deleted"?"history-deleted":""}">
+  const q=($("historySearch")?.value||"").toLowerCase().trim();
+  const allIncidents=historyIncidentItems().filter(i=>!q||[i.no,i.subject,i.contractor,i.description].join(" ").toLowerCase().includes(q));
+  $("historyIncidentRows").innerHTML=allIncidents.map(i=>`<tr class="history-incident ${i.historyType==="deleted"?"history-deleted":""}" data-history-id="${esc(i.id)}" tabindex="0" role="button" aria-label="نمایش جزئیات ${esc(i.no)}">
 <td><span class="history-badge incident-badge">${i.historyType==="deleted"?"Incident - حذف شده":"Incident"}</span></td><td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td>
 <td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td><td>${i.progress}%</td><td>${esc(i.description||"-")}</td>
-<td>${fa(i.f1)}</td><td>${fa(i.f2)}</td></tr>`).join("");
-
-  $("historyTaskRows").innerHTML=allTasks.map(t=>`<tr class="history-task ${t.historyType==="deleted"?"history-deleted":""}">
-<td><span class="history-badge task-badge">${t.historyType==="deleted"?"Task - حذف شده":"Task"}</span></td><td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td>
-<td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td><td>${fa(t.date)}</td><td>${t.historyType==="deleted"?"حذف شده":"انجام شد"}</td><td class="elapsed">${elapsed(t.createdAt,t.completedAt)}</td></tr>`).join("");
-
+<td>${fa(i.f1)}</td><td>${completionDateText(i)}</td></tr>`).join("");
   $("emptyHI").style.display=allIncidents.length?"none":"block";
-  $("emptyHT").style.display=allTasks.length?"none":"block";
+  renderContractorPerformance();
+  document.querySelectorAll("[data-history-id]").forEach(row=>{
+    const open=()=>openHistoryIncident(row.dataset.historyId);
+    row.onclick=open;
+    row.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}};
+  });
 }
+function openHistoryIncident(id){
+  const i=historyIncidentItems().find(x=>String(x.id)===String(id));
+  if(!i)return;
+  const ms=incidentCompletionMs(i);
+  $("historyIncidentDetail").innerHTML=`
+    <div class="detail-grid">
+      <div><span>شماره Incident</span><b>${esc(i.no)}</b></div>
+      <div><span>وضعیت History</span><b>${i.historyType==="deleted"?"حذف شده":"اتمام کار"}</b></div>
+      <div><span>موضوع Incident</span><b>${esc(i.subject||"-")}</b></div>
+      <div><span>پیمانکار</span><b>${esc(i.contractor||"-")}</b></div>
+      <div><span>تاریخ ثبت</span><b>${fa(i.reg)}</b></div>
+      <div><span>تاریخ اتمام</span><b>${completionDateText(i)}</b></div>
+      <div class="detail-wide"><span>مدت زمان از ثبت تا اتمام</span><b>${ms===null?"برای این Incident زمان اتمام معتبر ثبت نشده است.":formatDuration(ms)}</b></div>
+      <div class="detail-wide"><span>توضیحات</span><p>${esc(i.description||"توضیحی ثبت نشده است.")}</p></div>
+    </div>`;
+  $("historyIncidentDlg").showModal();
+}
+function renderContractorPerformance(){
+  const names=["شعبه","فرنیروی شرق","لاوین اساک"];
+  const colors=["branch","east","lavin"];
+  const items=historyIncidentItems();
+  const cards=names.map((name,idx)=>{
+    const completed=items.filter(i=>i.status==="closed"&&i.contractor===name);
+    const valid=completed.map(incidentCompletionMs).filter(v=>v!==null);
+    const avg=valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:null;
+    return {name,color:colors[idx],count:completed.length,validCount:valid.length,avg};
+  });
+  const box=$("contractorPerformance");
+  if(!box)return;
+  box.innerHTML=cards.map(c=>`<article class="performance-card performance-${c.color}">
+    <div class="performance-top"><span class="performance-dot"></span><strong>${esc(c.name)}</strong></div>
+    <div class="performance-time">${c.avg===null?"—":esc(formatDuration(c.avg))}</div>
+    <div class="performance-label">میانگین زمان رفع مشکل</div>
+    <div class="performance-meta"><span>Incident اتمام‌یافته</span><b>${c.count}</b></div>
+    <div class="performance-meta"><span>مورد دارای زمان معتبر</span><b>${c.validCount}</b></div>
+  </article>`).join("");
+}
+
 function setContractorFilter(name){
   iContractorFilter=name;
   document.querySelectorAll("[data-contractor-filter]").forEach(el=>{
@@ -166,7 +227,7 @@ function shift(which,days){
 $("prevI").onclick=()=>shift("i",-1);$("nextI").onclick=()=>shift("i",1);$("todayI").onclick=()=>{iDate=today();renderAll()};
 $("prevT").onclick=()=>shift("t",-1);$("nextT").onclick=()=>shift("t",1);$("todayT").onclick=()=>{tDate=today();renderAll()};
 
-document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");iFilter=b.dataset.status;renderIncidents()});
+document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{const wasActive=b.classList.contains("active");document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));iFilter=wasActive?"all":b.dataset.status;if(!wasActive)b.classList.add("active");renderIncidents()});
 document.querySelectorAll("[data-contractor-filter]").forEach(b=>b.onclick=()=>setContractorFilter(b.dataset.contractorFilter));
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{
   let p=b.dataset.page;document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===p));

@@ -21,14 +21,12 @@
     <div class="toolbar-actions"><button id="xlsxImportBtn" type="button" class="xlsx-toolbar-btn">📎 xlsx</button><button id="addIncident" class="primary">＋ ثبت Incident</button></div>
   </div>
   <div class="filters">
-    <button class="filter active" data-status="all">همه</button>
     <button class="filter" data-status="open"><i class="green"></i> باز</button>
     <button class="filter" data-status="progress"><i class="orange"></i> در حال پیگیری</button>
-    <button class="filter" data-status="closed"><i class="blue"></i> اتمام کار</button>
   </div>
   <div class="tablewrap"><table><thead><tr>
     <th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th>
-    <th>تاریخ پیگیری ۱</th><th>تاریخ پیگیری ۲</th><th>وضعیت</th><th>درصد پیشرفت</th>
+    <th>پیگیری ۱</th><th>اتمام کار</th><th>وضعیت</th><th>درصد پیشرفت</th>
     <th>زمان سپری شده</th><th>توضیحات</th><th>عملیات</th>
   </tr></thead><tbody id="incidentRows"></tbody></table></div>
   <div id="contractorStats" class="contractor-stats" aria-label="فیلتر و آمار Incident پیمانکارها">
@@ -55,17 +53,17 @@
 <section id="history" class="page">
   <div class="toolbar"><div class="search">🔎 <input id="historySearch" placeholder="جستجوی History"></div></div>
 
-  <div class="history-title incident-title"><span></span>Incident های اتمام کار</div>
+  <div class="history-title incident-title"><span></span>Incident های History</div>
   <div class="tablewrap history-wrap"><table><thead><tr>
-    <th>نوع</th><th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>درصد پیشرفت</th><th>توضیحات</th><th>پیگیری ۱</th><th>پیگیری ۲</th>
+    <th>نوع</th><th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>درصد پیشرفت</th><th>توضیحات</th><th>پیگیری ۱</th><th>اتمام کار</th>
   </tr></thead><tbody id="historyIncidentRows"></tbody></table></div>
   <div id="emptyHI" class="empty">هنوز Incident اتمام کاری در History وجود ندارد.</div>
 
-  <div class="history-title task-title"><span></span>Task های انجام‌شده</div>
-  <div class="tablewrap history-wrap"><table><thead><tr>
-    <th>نوع</th><th>عنوان Task</th><th>زمان</th><th>توضیحات</th><th>با چه شخصی</th><th>تاریخ</th><th>وضعیت</th><th>زمان سپری شده</th>
-  </tr></thead><tbody id="historyTaskRows"></tbody></table></div>
-  <div id="emptyHT" class="empty">هنوز Task انجام‌شده‌ای در History وجود ندارد.</div>
+  <div class="history-title performance-title"><span></span>عملکرد پیمانکاران</div>
+  <div id="contractorPerformance" class="contractor-performance"></div>
+  <div class="performance-note">میانگین زمان رفع فقط بر اساس Incidentهای تکمیل‌شده با زمان ثبت و زمان اتمام معتبر محاسبه می‌شود.</div>
+</section>
+
 </section>
 </main>
 
@@ -103,7 +101,6 @@
   </select>
 </label>
 <label>تاریخ پیگیری ۱<input id="follow1" type="date"></label>
-<label>تاریخ پیگیری ۲<input id="follow2" type="date"></label>
 <label>وضعیت<select id="incidentStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label>
 <label>درصد پیشرفت<input id="incidentProgress" type="number" min="0" max="100" value="0"></label>
 <label>توضیحات<textarea id="incidentDescription" rows="4"></textarea></label>
@@ -122,6 +119,12 @@
 <div class="actions"><button type="button" data-close="taskDlg">انصراف</button><button class="primary">ذخیره</button></div>
 </form></dialog>
 
+<dialog id="historyIncidentDlg" class="history-detail-dialog">
+  <div class="history-detail">
+    <div class="modalhead"><h3>جزئیات Incident</h3><button type="button" data-close="historyIncidentDlg">×</button></div>
+    <div id="historyIncidentDetail"></div>
+  </div>
+</dialog>
 
 <dialog id="mshDlg" class="msh-dialog">
   <div class="msh-page">
