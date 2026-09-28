@@ -18,7 +18,7 @@
 <section id="incidents" class="page active">
   <div class="toolbar">
     <div class="datebar"><button id="prevI">‹</button><button id="todayI">📅 امروز</button><span id="dateI"></span><button id="nextI">›</button></div>
-    <button id="addIncident" class="primary">＋ ثبت Incident</button>
+    <div class="toolbar-actions"><button id="xlsxImportBtn" type="button" class="xlsx-toolbar-btn">📎 xlsx</button><button id="addIncident" class="primary">＋ ثبت Incident</button></div>
   </div>
   <div class="filters">
     <button class="filter active" data-status="all">همه</button>
@@ -85,7 +85,6 @@
 <div class="modalhead">
   <h3 id="incidentTitle">ثبت Incident</h3>
   <div class="modaltools">
-    
     <button type="button" data-close="incidentDlg">×</button>
   </div>
 </div>

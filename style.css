@@ -81,3 +81,7 @@ header{position:relative}
 @media(max-width:420px){.msh-page{padding:17px 12px}.msh-contractors{gap:6px}.msh-contractor{min-height:78px;padding:10px 3px}.msh-contractor span{font-size:11px}.msh-contractor span b{min-width:21px;height:21px;font-size:11px}}
 
 .msh-result{gap:10px}.msh-result .zone{flex:1}.msh-delete{flex:0 0 auto;width:32px;height:32px;border:1px solid #3b3032;background:#21171a;color:#ff9aa3;border-radius:9px;cursor:pointer;font-size:15px}.msh-delete:active{transform:scale(.94)}
+
+.toolbar-actions{display:flex;gap:8px;align-items:center}
+.xlsx-toolbar-btn{border:1px solid #555;background:#222;color:#fff;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer}
+@media(max-width:600px){.toolbar-actions{gap:6px}.xlsx-toolbar-btn{padding:8px 9px;font-size:12px}}

@@ -303,7 +303,8 @@ function chooseXlsxFile(){
   $("xlsxFile").value="";
   $("xlsxFile").click();
 }
-$("xlsxImportBtn").onclick=chooseXlsxFile;
+const xlsxImportBtn=$("xlsxImportBtn");
+if(xlsxImportBtn) xlsxImportBtn.onclick=chooseXlsxFile;
 $("xlsxFile").onchange=e=>{
   const file=e.target.files?.[0];
   if(file) importIncidentsFromXlsx(file);
