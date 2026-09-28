@@ -209,21 +209,12 @@ $("mshSearch").oninput=renderMsh;
 document.querySelectorAll("[data-msh-contractor]").forEach(b=>b.onclick=()=>{mshFilter=b.dataset.mshContractor;document.querySelectorAll("[data-msh-contractor]").forEach(x=>x.classList.toggle("active",x===b));renderMsh()});
 $("mshForm").onsubmit=e=>{e.preventDefault();const zone=$("mshZone").value.trim();const contractor=$("mshContractor").value;if(mshZones.some(x=>String(x.zone)===zone)){alert("این شماره زون قبلاً ثبت شده است.");return;}mshZones.push({id:crypto.randomUUID(),zone,contractor,createdAt:new Date().toISOString()});save();$("mshFormDlg").close();renderMsh()};
 // XLSX import for Incident registration.
-// Excel columns used: 1=Incident number, 3=Title, 8=Contractor person.
+// Excel columns used ONLY: 1=Incident number, 3=Title. Registration time is set to import time.
 function normalizeImportText(value){
   return String(value ?? "")
     .replace(/\u200c/g," ")
     .replace(/[يى]/g,"ی").replace(/ك/g,"ک")
     .replace(/\s+/g," ").trim();
-}
-function contractorFromExcel(value){
-  const name=normalizeImportText(value);
-  const map={
-    "سعید اسحقی":"لاوین اساک",
-    "سید مهدی خطیبی":"فرنیرو",
-    "شعبه":"شعبه"
-  };
-  return map[name] || "";
 }
 function incidentNumberExists(no){
   const key=normalizeImportText(no);
@@ -252,37 +243,40 @@ async function importIncidentsFromXlsx(file){
     const imported=[];
     const skippedDuplicate=[];
     const skippedInvalid=[];
-    const skippedContractor=[];
     const batchNumbers=new Set();
+    const importTime=new Date();
 
     rows.forEach((row,index)=>{
-      // Do not assume a header row; any row without an Incident number is ignored.
       const no=normalizeImportText(row[0]);
+      const subject=normalizeImportText(row[2]);
+
+      // Ignore an Excel header row if present.
+      const headerNo=no.toLowerCase();
+      const headerSubject=subject.toLowerCase();
+      if(index===0 && (headerNo.includes("شماره") || headerNo.includes("incident") || headerSubject.includes("عنوان"))) return;
+
       if(!no){
         skippedInvalid.push(index+1);
         return;
       }
-      const subject=normalizeImportText(row[2]);
-      const contractor=contractorFromExcel(row[7]);
-      if(!contractor){
-        skippedContractor.push({row:index+1,name:normalizeImportText(row[7])});
-        return;
-      }
+
       const key=no;
       if(incidentNumberExists(key) || batchNumbers.has(key)){
         skippedDuplicate.push(key);
         return;
       }
       batchNumbers.add(key);
+
       imported.push({
         id:crypto.randomUUID(),
-        createdAt:new Date().toISOString(),
+        createdAt:importTime.toISOString(),
         completedAt:"",
         no,
         subject,
-        // Import is stamped with the actual registration date/time.
-        reg:localISO(new Date()),
-        contractor,
+        // Registration date/time is the exact moment the Excel import starts.
+        reg:localISO(importTime),
+        // Contractor is intentionally NOT imported from Excel.
+        contractor:"",
         f1:"",
         f2:"",
         status:"open",
@@ -297,18 +291,14 @@ async function importIncidentsFromXlsx(file){
 
     let msg=`${imported.length} Incident با موفقیت وارد شد.`;
     if(skippedDuplicate.length) msg+=`\n${skippedDuplicate.length} مورد به دلیل شماره Incident تکراری وارد نشد.`;
-    if(skippedContractor.length) msg+=`\n${skippedContractor.length} مورد به دلیل نام پیمانکار ناشناخته وارد نشد.`;
     if(skippedInvalid.length) msg+=`\n${skippedInvalid.length} ردیف بدون شماره Incident نادیده گرفته شد.`;
-    if(skippedContractor.length){
-      const names=[...new Set(skippedContractor.map(x=>x.name).filter(Boolean))].join("، ");
-      if(names) msg+=`\nنام‌های ناشناخته: ${names}`;
-    }
     alert(msg);
   }catch(err){
     console.error(err);
     alert("خواندن فایل xlsx انجام نشد. لطفاً مطمئن شوید فایل Excel معتبر است.");
   }
 }
+
 function chooseXlsxFile(){
   $("xlsxFile").value="";
   $("xlsxFile").click();
