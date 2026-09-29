@@ -53,11 +53,12 @@
 <section id="history" class="page">
   <div class="toolbar"><div class="search">🔎 <input id="historySearch" placeholder="جستجوی History"></div></div>
 
-  <div class="history-title incident-title"><span></span>Incident های History</div>
+  <div class="history-title incident-title"><span></span>Incident History</div>
   <div class="tablewrap history-wrap"><table><thead><tr>
     <th>نوع</th><th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>درصد پیشرفت</th><th>توضیحات</th><th>پیگیری ۱</th><th>اتمام کار</th>
   </tr></thead><tbody id="historyIncidentRows"></tbody></table></div>
   <div id="emptyHI" class="empty">هنوز Incident اتمام کاری در History وجود ندارد.</div>
+  <div id="xlsxImportResult" class="xlsx-import-result" hidden></div>
 
   <div class="history-title performance-title"><span></span>عملکرد پیمانکاران</div>
   <div id="contractorPerformance" class="contractor-performance"></div>
@@ -88,7 +89,7 @@
 </div>
 <input id="xlsxFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
 <input type="hidden" id="incidentId">
-<label>شماره Incident<input id="incidentNo" required placeholder="INC-001"></label>
+<label>شماره Incident<input id="incidentNo" required inputmode="numeric" pattern="[0-9]+" placeholder="001"></label>
 <label>موضوع Incident<input id="incidentSubject" required></label>
 <label>تاریخ ثبت<input id="incidentDate" type="date" required></label>
 <label>پیمانکار

@@ -18,7 +18,6 @@ nav{display:flex;gap:7px;margin-top:10px}
 table{border-collapse:collapse;width:100%;min-width:1150px}
 th,td{border-bottom:1px solid #292c32;padding:10px;text-align:right;font-size:13px;vertical-align:top}
 th{background:#17191e;color:#bbb}
-tr.age-orange{background:#332414}tr.age-red{background:#351719}
 .progress{min-width:100px}.bar{height:6px;background:#2b2d33;border-radius:8px;margin-top:5px;overflow:hidden}.bar span{display:block;height:100%;background:#ddd}
 .elapsed{white-space:nowrap;font-variant-numeric:tabular-nums}
 .rowactions{display:flex;gap:5px;align-items:center}.rowactions button{background:#202229;color:#fff;border:1px solid #33363e;border-radius:8px;width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;line-height:1}.rowactions button:active{transform:scale(.94)}.rowactions .icon-edit{color:#dbe7ff}.rowactions .icon-delete{color:#ff9aa3}
@@ -143,3 +142,34 @@ header b{font-size:14px}
 
 #historyIncidentRows th,#historyIncidentRows td,#historyIncidentRows td b,#historyIncidentRows .history-badge{font-size:10px;font-weight:400}
 #historyIncidentRows .history-badge{display:inline;padding:0;background:transparent;border:0;color:inherit;border-radius:0}
+
+/* Incident number: two-line display */
+.incident-number{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;min-width:44px;font-variant-numeric:tabular-nums}
+.incident-number b{font-size:12px;font-weight:700}
+.incident-number small{font-size:9px;font-weight:600;color:#8b8f99;margin-top:2px;direction:ltr}
+#incidentRows .incident-number b{font-size:12px}
+#historyIncidentRows .incident-number b{font-size:10px;font-weight:400}
+#historyIncidentRows .incident-number small{font-size:8px}
+
+/* History contractor performance line chart */
+.performance-line-chart{grid-column:1/-1;background:#121419;border:1px solid #292c32;border-radius:13px;padding:10px 10px 6px;margin-bottom:2px;overflow:hidden}
+.performance-line-chart svg{display:block;width:100%;height:auto;min-height:190px}
+.chart-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 4px 5px;color:#ddd;font-size:11px}
+.chart-heading span{font-size:9px;color:#777b86}
+.chart-axis{stroke:#343741;stroke-width:1}
+.chart-line{fill:none;stroke:#8fc9ff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.chart-point{stroke:#0d0f13;stroke-width:3}
+.chart-branch{fill:#4da3ff}.chart-east{fill:#ffb74d}.chart-lavin{fill:#b56cff}
+.chart-value{fill:#fff;font-size:10px;font-weight:700}
+.chart-label{fill:#9da1aa;font-size:10px}
+.chart-empty{padding:35px 10px;text-align:center;color:#777b86;font-size:10px}
+
+/* Excel import result: compact duplicate list below the result */
+.xlsx-import-result{margin:8px 0 0;background:#121419;border:1px solid #292c32;border-radius:10px;padding:8px 10px;font-size:10px;line-height:1.7}
+.xlsx-result-main{color:#9fe8b1;font-weight:700}
+.xlsx-result-duplicates{color:#ffb74d;margin-top:2px}
+.xlsx-result-invalid{color:#8f95a0;margin-top:2px}
+.xlsx-result-numbers{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;max-height:72px;overflow:auto}
+.xlsx-result-numbers>span{display:inline-flex;align-items:center;justify-content:center;min-width:38px;padding:2px 5px;background:#191b20;border:1px solid #30333a;border-radius:7px}
+.xlsx-result-numbers .incident-number b{font-size:10px}
+.xlsx-result-numbers .incident-number small{font-size:7px}

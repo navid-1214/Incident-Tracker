@@ -26,6 +26,8 @@ function shiftISO(iso,days){
 }
 function fa(s){if(!s)return"-";return new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(s+"T00:00:00"))}
 function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function normalizeIncidentNumber(value){return String(value??"").replace(/\u200c/g,"").replace(/[^0-9]/g,"").replace(/^0+(?=\d)/,"")}
+function incidentNoHtml(value){const n=normalizeIncidentNumber(value)||String(value??"").trim();return `<span class="incident-number"><b>${esc(n)}</b><small>-INC</small></span>`}
 function save(){localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks));localStorage.setItem(HK,JSON.stringify(history));localStorage.setItem(MK,JSON.stringify(mshZones))}
 function elapsed(iso,endIso){let end=endIso?new Date(endIso):new Date();let n=Math.max(0,Math.floor((end-new Date(iso))/1000)),h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":")}
 function incStatus(s){return s==="open"?"باز":s==="progress"?"در حال پیگیری":"اتمام کار"}
@@ -41,7 +43,7 @@ function renderIncidents(){
     .filter(i=>i.status!=="closed")
     .filter(i=>iContractorFilter==="all"||(iContractorFilter==="فرنیروی شرق" && (i.contractor==="فرنیروی شرق"||i.contractor==="فرنیرو"))||i.contractor===iContractorFilter);
   $("incidentRows").innerHTML=list.map(i=>`<tr class="${incAge(i)}">
-<td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td>
+<td>${incidentNoHtml(i.no)}</td><td>${esc(i.subject)}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td>
 <td>${fa(i.f1)}</td><td>${completionDateText(i)}</td><td class="status"><i class="${incDot(i.status)}"></i>${incStatus(i.status)}</td>
 <td class="progress">${i.progress}%<div class="bar"><span style="width:${i.progress}%"></span></div></td>
 <td class="elapsed">${elapsed(i.createdAt,i.completedAt)}</td><td>${esc(i.description||"-")}</td>
@@ -96,7 +98,7 @@ function renderHistory(){
   const q=($("historySearch")?.value||"").toLowerCase().trim();
   const allIncidents=historyIncidentItems().filter(i=>!q||[i.no,i.subject,i.contractor,i.description].join(" ").toLowerCase().includes(q));
   $("historyIncidentRows").innerHTML=allIncidents.map(i=>`<tr class="history-incident ${i.historyType==="deleted"?"history-deleted":""}" data-history-id="${esc(i.id)}" tabindex="0" role="button" aria-label="نمایش جزئیات ${esc(i.no)}">
-<td><span class="history-badge incident-badge">${i.historyType==="deleted"?"Incident - حذف شده":"Incident"}</span></td><td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td>
+<td><span class="history-badge incident-badge">${i.historyType==="deleted"?"Incident - حذف شده":"Incident"}</span></td><td>${incidentNoHtml(i.no)}</td><td>${esc(i.subject)}</td>
 <td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td><td>${i.progress}%</td><td>${esc(i.description||"-")}</td>
 <td>${fa(i.f1)}</td><td>${completionDateText(i)}</td></tr>`).join("");
   $("emptyHI").style.display=allIncidents.length?"none":"block";
@@ -136,7 +138,7 @@ function renderContractorPerformance(){
   });
   const box=$("contractorPerformance");
   if(!box)return;
-  box.innerHTML=cards.map(c=>`<article class="performance-card performance-${c.color}">
+  box.innerHTML=`<div class="performance-line-chart">${buildPerformanceLineChart(cards)}</div>`+cards.map(c=>`<article class="performance-card performance-${c.color}">
     <div class="performance-top"><span class="performance-dot"></span><strong>${esc(c.name)}</strong></div>
     <div class="performance-time">${c.avg===null?"—":esc(formatDuration(c.avg))}</div>
     <div class="performance-label">میانگین زمان رفع مشکل</div>
@@ -144,6 +146,19 @@ function renderContractorPerformance(){
     <div class="performance-meta"><span>مورد دارای زمان معتبر</span><b>${c.validCount}</b></div>
   </article>`).join("");
 }
+
+function buildPerformanceLineChart(cards){
+  const valid=cards.filter(c=>c.avg!==null);
+  if(!valid.length) return `<div class="chart-empty">هنوز Incident تکمیل‌شده با زمان معتبر برای نمایش نمودار وجود ندارد.</div>`;
+  const W=720,H=250,pL=55,pR=28,pT=24,pB=62;
+  const max=Math.max(...valid.map(c=>c.avg/3600000),1);
+  const step=(W-pL-pR)/Math.max(valid.length-1,1);
+  const y=v=>pT+(H-pT-pB)*(1-v/max), x=i=>pL+i*step;
+  const points=valid.map((c,i)=>`${x(i)},${y(c.avg/3600000)}`).join(" ");
+  const nodes=valid.map((c,i)=>`<g><circle cx="${x(i)}" cy="${y(c.avg/3600000)}" r="6" class="chart-point chart-${c.color}"></circle><text x="${x(i)}" y="${y(c.avg/3600000)-12}" text-anchor="middle" class="chart-value">${formatHoursShort(c.avg)}</text><text x="${x(i)}" y="${H-25}" text-anchor="middle" class="chart-label">${esc(c.name)}</text></g>`).join("");
+  return `<div class="chart-heading"><b>میانگین زمان رفع به تفکیک پیمانکار</b><span>بر حسب ساعت</span></div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="نمودار خطی میانگین زمان رفع Incident بر اساس پیمانکار"><line x1="${pL}" y1="${H-pB}" x2="${W-pR}" y2="${H-pB}" class="chart-axis"/><polyline points="${points}" class="chart-line"></polyline>${nodes}</svg>`;
+}
+function formatHoursShort(ms){const h=ms/3600000;return h>=10?h.toFixed(0):h.toFixed(1);}
 
 function setContractorFilter(name){
   iContractorFilter=name;
@@ -172,7 +187,7 @@ function openIncident(){
 }
 function editIncident(id){
   let i=incidents.find(x=>x.id===id);if(!i)return;
-  $("incidentId").value=id;$("incidentTitle").textContent="ویرایش Incident";$("incidentNo").value=i.no;$("incidentSubject").value=i.subject;
+  $("incidentId").value=id;$("incidentTitle").textContent="ویرایش Incident";$("incidentNo").value=normalizeIncidentNumber(i.no);$("incidentSubject").value=i.subject;
   $("incidentDate").value=i.reg;$("contractor").value=i.contractor||"";$("follow1").value=i.f1||"";
   $("incidentStatus").value=i.status;$("incidentProgress").value=i.progress;$("incidentDescription").value=i.description||"";$("incidentDlg").showModal()
 }
@@ -186,7 +201,7 @@ function deleteIncident(id){
 
 $("incidentForm").onsubmit=e=>{
   e.preventDefault();let id=$("incidentId").value;
-  let v={no:$("incidentNo").value.trim(),subject:$("incidentSubject").value.trim(),reg:$("incidentDate").value,contractor:$("contractor").value.trim(),
+  let v={no:normalizeIncidentNumber($("incidentNo").value),subject:$("incidentSubject").value.trim(),reg:$("incidentDate").value,contractor:$("contractor").value.trim(),
   f1:$("follow1").value,status:$("incidentStatus").value,progress:Math.max(0,Math.min(100,Number($("incidentProgress").value)||0)),description:$("incidentDescription").value.trim()};
   if(id){let old=incidents.find(x=>x.id===id);if(old){let completedAt=old.completedAt;if(v.status==="closed" && old.status!=="closed") completedAt=new Date().toISOString();if(v.status!=="closed") completedAt="";Object.assign(old,v,{completedAt});}}else incidents.push({id:crypto.randomUUID(),createdAt:new Date().toISOString(),completedAt:v.status==="closed"?new Date().toISOString():"",...v});
   save();$("incidentDlg").close();renderAll()
@@ -278,7 +293,7 @@ function normalizeImportText(value){
     .replace(/\s+/g," ").trim();
 }
 function incidentNumberExists(no){
-  const key=normalizeImportText(no);
+  const key=normalizeIncidentNumber(no);
   if(!key) return false;
   if(incidents.some(i=>normalizeImportText(i.no)===key)) return true;
   if(history.some(x=>x.type==="incident" && normalizeImportText(x.item?.no)===key)) return true;
@@ -308,7 +323,7 @@ async function importIncidentsFromXlsx(file){
     const importTime=new Date();
 
     rows.forEach((row,index)=>{
-      const no=normalizeImportText(row[0]);
+      const no=normalizeIncidentNumber(row[0]);
       const subject=normalizeImportText(row[2]);
 
       // Ignore an Excel header row if present.
@@ -350,10 +365,14 @@ async function importIncidentsFromXlsx(file){
     if(imported.length) save();
     renderAll();
 
-    let msg=`${imported.length} Incident با موفقیت وارد شد.`;
-    if(skippedDuplicate.length) msg+=`\n${skippedDuplicate.length} مورد به دلیل شماره Incident تکراری وارد نشد.`;
-    if(skippedInvalid.length) msg+=`\n${skippedInvalid.length} ردیف بدون شماره Incident نادیده گرفته شد.`;
-    alert(msg);
+    let msg=`${imported.length} مورد با موفقیت وارد شد.`;
+    const result=$("xlsxImportResult");
+    if(result){
+      result.hidden=false;
+      result.innerHTML=`<div class="xlsx-result-main">${msg}</div>
+        ${skippedDuplicate.length?`<div class="xlsx-result-duplicates">${skippedDuplicate.length} مورد به دلیل شماره Incident تکراری وارد نشد.</div><div class="xlsx-result-numbers">${skippedDuplicate.map(n=>`<span>${incidentNoHtml(n)}</span>`).join("")}</div>`:""}
+        ${skippedInvalid.length?`<div class="xlsx-result-invalid">${skippedInvalid.length} ردیف بدون شماره Incident نادیده گرفته شد.</div>`:""}`;
+    }
   }catch(err){
     console.error(err);
     alert("خواندن فایل xlsx انجام نشد. لطفاً مطمئن شوید فایل Excel معتبر است.");
