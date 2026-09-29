@@ -29,6 +29,7 @@
     <th>پیگیری ۱</th><th>اتمام کار</th><th>وضعیت</th><th>درصد پیشرفت</th>
     <th>زمان سپری شده</th><th>توضیحات</th><th>عملیات</th>
   </tr></thead><tbody id="incidentRows"></tbody></table></div>
+  <div id="xlsxImportResult" class="xlsx-import-result" hidden></div>
   <div id="contractorStats" class="contractor-stats" aria-label="فیلتر و آمار Incident پیمانکارها">
     <button type="button" class="stat-card stat-branch" data-contractor-filter="شعبه"><span>شعبه</span><b id="count0">0</b></button>
     <button type="button" class="stat-card stat-east" data-contractor-filter="فرنیروی شرق"><span>فرنیروی شرق</span><b id="count1">0</b></button>
@@ -58,8 +59,6 @@
     <th>نوع</th><th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>درصد پیشرفت</th><th>توضیحات</th><th>پیگیری ۱</th><th>اتمام کار</th>
   </tr></thead><tbody id="historyIncidentRows"></tbody></table></div>
   <div id="emptyHI" class="empty">هنوز Incident اتمام کاری در History وجود ندارد.</div>
-  <div id="xlsxImportResult" class="xlsx-import-result" hidden></div>
-
   <div class="history-title performance-title"><span></span>عملکرد پیمانکاران</div>
   <div id="contractorPerformance" class="contractor-performance"></div>
   <div class="performance-note">میانگین زمان رفع فقط بر اساس Incidentهای تکمیل‌شده با زمان ثبت و زمان اتمام معتبر محاسبه می‌شود.</div>

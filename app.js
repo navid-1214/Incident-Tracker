@@ -295,8 +295,10 @@ function normalizeImportText(value){
 function incidentNumberExists(no){
   const key=normalizeIncidentNumber(no);
   if(!key) return false;
-  if(incidents.some(i=>normalizeImportText(i.no)===key)) return true;
-  if(history.some(x=>x.type==="incident" && normalizeImportText(x.item?.no)===key)) return true;
+  // Compare by numeric Incident number only, regardless of old display formats
+  // such as INC-123 or 123-INC.
+  if(incidents.some(i=>normalizeIncidentNumber(i.no)===key)) return true;
+  if(history.some(x=>x.type==="incident" && normalizeIncidentNumber(x.item?.no)===key)) return true;
   return false;
 }
 async function importIncidentsFromXlsx(file){
@@ -370,8 +372,16 @@ async function importIncidentsFromXlsx(file){
     if(result){
       result.hidden=false;
       result.innerHTML=`<div class="xlsx-result-main">${msg}</div>
-        ${skippedDuplicate.length?`<div class="xlsx-result-duplicates">${skippedDuplicate.length} مورد به دلیل شماره Incident تکراری وارد نشد.</div><div class="xlsx-result-numbers">${skippedDuplicate.map(n=>`<span>${incidentNoHtml(n)}</span>`).join("")}</div>`:""}
-        ${skippedInvalid.length?`<div class="xlsx-result-invalid">${skippedInvalid.length} ردیف بدون شماره Incident نادیده گرفته شد.</div>`:""}`;
+        ${skippedDuplicate.length?`<div class="xlsx-result-duplicates">${skippedDuplicate.length} شماره تکراری وارد نشد:</div><div class="xlsx-result-numbers">${skippedDuplicate.map(n=>`<span>${incidentNoHtml(n)}</span>`).join("")}</div>`:""}
+        ${skippedInvalid.length?`<div class="xlsx-result-invalid">${skippedInvalid.length} ردیف بدون شماره Incident نادیده گرفته شد.</div>`:""}
+        <div class="xlsx-result-actions"><button type="button" id="xlsxImportResultOk">OK</button></div>`;
+      const ok=$("xlsxImportResultOk");
+      if(ok) ok.onclick=()=>{result.hidden=true;result.innerHTML=""};
+      // Duplicate notices are always shown on the main Incident page.
+      if(skippedDuplicate.length){
+        document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="incidents"));
+        document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page==="incidents"));
+      }
     }
   }catch(err){
     console.error(err);

@@ -173,3 +173,4 @@ header b{font-size:14px}
 .xlsx-result-numbers>span{display:inline-flex;align-items:center;justify-content:center;min-width:38px;padding:2px 5px;background:#191b20;border:1px solid #30333a;border-radius:7px}
 .xlsx-result-numbers .incident-number b{font-size:10px}
 .xlsx-result-numbers .incident-number small{font-size:7px}
+.xlsx-result-actions{display:flex;justify-content:flex-end;margin-top:6px}.xlsx-result-actions button{border:1px solid #3b3f48;background:#22252b;color:#fff;border-radius:7px;padding:3px 12px;font-size:10px;font-weight:700;cursor:pointer}
