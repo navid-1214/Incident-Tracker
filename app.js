@@ -69,6 +69,7 @@ function renderIncidents(){
 <td class="elapsed">${elapsed(i.createdAt,i.completedAt)}</td><td>${esc(i.description||"-")}</td>
 <td><div class="rowactions"><button type="button" class="icon-edit" data-id="${esc(i.id)}" aria-label="ویرایش" title="ویرایش">✏️</button><button type="button" class="icon-delete" data-id="${esc(i.id)}" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
   $("emptyI").style.display=list.length?"none":"block";
+  bindIncidentRowActions();
   renderContractorStats();
 }
 
@@ -83,6 +84,7 @@ function renderTasks(){
 <td>${fa(t.date)}</td><td>${taskStatusText(t.status)}</td><td class="elapsed">${elapsed(t.createdAt,t.completedAt)}</td>
 <td><div class="rowactions"><button type="button" class="icon-edit" data-task-id="${esc(t.id)}" aria-label="ویرایش" title="ویرایش">✏️</button><button type="button" class="icon-delete" data-task-id="${esc(t.id)}" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
   $("emptyT").style.display=list.length?"none":"block";
+  bindTaskRowActions();
 }
 
 function formatDuration(ms){
@@ -233,35 +235,33 @@ function renderContractorStats(){
 
 function renderAll(){renderIncidents();renderTasks();renderHistory();renderContractorStats()}
 
-document.addEventListener("click",e=>{
-  const edit=e.target.closest("#incidentRows button.icon-edit");
-  if(edit){
-    e.preventDefault(); e.stopPropagation();
-    const id=String(edit.dataset.id||edit.closest("tr")?.dataset.id||"");
-    if(id) editIncident(id);
-    return;
-  }
-  const del=e.target.closest("#incidentRows button.icon-delete");
-  if(del){
-    e.preventDefault(); e.stopPropagation();
-    const id=String(del.dataset.id||del.closest("tr")?.dataset.id||"");
-    if(id) deleteIncident(id);
-    return;
-  }
-  const tedit=e.target.closest("#taskRows button.icon-edit");
-  if(tedit){
-    e.preventDefault(); e.stopPropagation();
-    const id=String(tedit.dataset.taskId||tedit.closest("tr")?.dataset.id||"");
-    if(id) editTask(id);
-    return;
-  }
-  const tdel=e.target.closest("#taskRows button.icon-delete");
-  if(tdel){
-    e.preventDefault(); e.stopPropagation();
-    const id=String(tdel.dataset.taskId||tdel.closest("tr")?.dataset.id||"");
-    if(id) deleteTask(id);
-  }
-});
+function bindIncidentRowActions(){
+  document.querySelectorAll("#incidentRows .icon-edit").forEach(btn=>{
+    btn.onclick=e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const id=String(btn.dataset.id||btn.closest("tr")?.dataset.id||"");
+      if(id) editIncident(id);
+    };
+  });
+  document.querySelectorAll("#incidentRows .icon-delete").forEach(btn=>{
+    btn.onclick=e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const id=String(btn.dataset.id||btn.closest("tr")?.dataset.id||"");
+      if(id) deleteIncident(id);
+    };
+  });
+}
+
+function bindTaskRowActions(){
+  document.querySelectorAll("#taskRows .icon-edit").forEach(btn=>{
+    btn.onclick=e=>{e.preventDefault();e.stopPropagation();const id=String(btn.dataset.taskId||btn.closest("tr")?.dataset.id||"");if(id) editTask(id);};
+  });
+  document.querySelectorAll("#taskRows .icon-delete").forEach(btn=>{
+    btn.onclick=e=>{e.preventDefault();e.stopPropagation();const id=String(btn.dataset.taskId||btn.closest("tr")?.dataset.id||"");if(id) deleteTask(id);};
+  });
+}
 
 function openIncident(){
   $("incidentForm").reset();$("incidentId").value="";$("incidentTitle").textContent="ثبت Incident";
@@ -299,7 +299,10 @@ $("incidentForm").onsubmit=e=>{
   }else{
     incidents.push({id:makeId(),createdAt:new Date().toISOString(),completedAt:v.status==="closed"?new Date().toISOString():"",...v});
   }
-  if(save()){ $("incidentDlg").close(); renderAll(); }
+  if(save()){
+    $("incidentDlg").close();
+    renderAll();
+  }
 }
 
 function openTask(){
