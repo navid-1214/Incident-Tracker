@@ -162,3 +162,8 @@ header b{font-size:14px}
 .line-chart-title{border-right:4px solid #8d96a8}.line-chart-title span{background:#8d96a8}
 .line-chart-wrap{background:#121419;border:1px solid #292c32;border-radius:13px;padding:8px 8px 2px;overflow:hidden}
 #contractorLineChart{display:block;width:100%;height:230px}
+
+/* Final: simple Incident History table */
+#historyIncidentRows th, #historyIncidentRows td { font-size:10px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif; font-weight:400; }
+#historyIncidentRows td .history-badge { font-size:10px; font-weight:400; padding:0; background:none; border:0; color:inherit; }
+#historyIncidentRows .incident-number b, #historyIncidentRows .incident-number span { font-size:10px; font-weight:400; }

@@ -7,6 +7,7 @@ let mshZones=JSON.parse(localStorage.getItem(MK)||"[]");
 let mshFilter="all";
 let iDate=today(),tDate=today(),iFilter="all",iContractorFilter="all";
 const $=id=>document.getElementById(id);
+function makeId(){try{if(globalThis.crypto?.randomUUID)return globalThis.crypto.randomUUID()}catch(e){} return "id-"+Date.now()+"-"+Math.random().toString(36).slice(2)}
 
 function today(){
   const d=new Date();
@@ -26,7 +27,19 @@ function shiftISO(iso,days){
 }
 function fa(s){if(!s)return"-";return new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(s+"T00:00:00"))}
 function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function save(){localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks));localStorage.setItem(HK,JSON.stringify(history));localStorage.setItem(MK,JSON.stringify(mshZones))}
+function save(){
+  try{
+    localStorage.setItem(IK,JSON.stringify(incidents));
+    localStorage.setItem(TK,JSON.stringify(tasks));
+    localStorage.setItem(HK,JSON.stringify(history));
+    localStorage.setItem(MK,JSON.stringify(mshZones));
+    return true;
+  }catch(err){
+    console.error("Incident Tracker save error",err);
+    alert("ذخیره اطلاعات انجام نشد. فضای ذخیره‌سازی مرورگر را بررسی کنید.");
+    return false;
+  }
+}
 function elapsed(iso,endIso){let end=endIso?new Date(endIso):new Date();let n=Math.max(0,Math.floor((end-new Date(iso))/1000)),h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":")}
 function incStatus(s){return s==="open"?"باز":s==="progress"?"در حال پیگیری":"اتمام کار"}
 function incDot(s){return s==="open"?"green":s==="progress"?"orange":"blue"}
@@ -221,14 +234,33 @@ function renderContractorStats(){
 function renderAll(){renderIncidents();renderTasks();renderHistory();renderContractorStats()}
 
 document.addEventListener("click",e=>{
-  const edit=e.target.closest("#incidentRows .icon-edit");
-  if(edit){e.preventDefault();e.stopPropagation();const row=edit.closest("tr");const id=row?.dataset?.id||edit.dataset.id;if(id) editIncident(id);}
-  const del=e.target.closest("#incidentRows .icon-delete");
-  if(del){e.preventDefault();e.stopPropagation();const row=del.closest("tr");const id=row?.dataset?.id||del.dataset.id;if(id) deleteIncident(id);}
-  const tedit=e.target.closest("#taskRows .icon-edit");
-  if(tedit){e.preventDefault();e.stopPropagation();const id=tedit.dataset.taskId||tedit.closest("tr")?.dataset?.id;if(id) editTask(id);}
-  const tdel=e.target.closest("#taskRows .icon-delete");
-  if(tdel){e.preventDefault();e.stopPropagation();const id=tdel.dataset.taskId||tdel.closest("tr")?.dataset?.id;if(id) deleteTask(id);}
+  const edit=e.target.closest("#incidentRows button.icon-edit");
+  if(edit){
+    e.preventDefault(); e.stopPropagation();
+    const id=String(edit.dataset.id||edit.closest("tr")?.dataset.id||"");
+    if(id) editIncident(id);
+    return;
+  }
+  const del=e.target.closest("#incidentRows button.icon-delete");
+  if(del){
+    e.preventDefault(); e.stopPropagation();
+    const id=String(del.dataset.id||del.closest("tr")?.dataset.id||"");
+    if(id) deleteIncident(id);
+    return;
+  }
+  const tedit=e.target.closest("#taskRows button.icon-edit");
+  if(tedit){
+    e.preventDefault(); e.stopPropagation();
+    const id=String(tedit.dataset.taskId||tedit.closest("tr")?.dataset.id||"");
+    if(id) editTask(id);
+    return;
+  }
+  const tdel=e.target.closest("#taskRows button.icon-delete");
+  if(tdel){
+    e.preventDefault(); e.stopPropagation();
+    const id=String(tdel.dataset.taskId||tdel.closest("tr")?.dataset.id||"");
+    if(id) deleteTask(id);
+  }
 });
 
 function openIncident(){
@@ -244,17 +276,30 @@ function editIncident(id){
 function deleteIncident(id){
   if(confirm("این Incident حذف شود؟")){
     let item=incidents.find(x=>x.id===id);
-    if(item) history.push({id:crypto.randomUUID(),type:"incident",action:"deleted",at:new Date().toISOString(),item:{...item}});
+    if(item) history.push({id:makeId(),type:"incident",action:"deleted",at:new Date().toISOString(),item:{...item}});
     incidents=incidents.filter(x=>x.id!==id);save();renderAll();
   }
 }
 
 $("incidentForm").onsubmit=e=>{
-  e.preventDefault();let id=$("incidentId").value;
-  let v={no:$("incidentNo").value.trim(),subject:$("incidentSubject").value.trim(),reg:$("incidentDate").value,contractor:$("contractor").value.trim(),
-  f1:$("follow1").value,f2:$("follow2").value,status:$("incidentStatus").value,progress:Math.max(0,Math.min(100,Number($("incidentProgress").value)||0)),description:$("incidentDescription").value.trim()};
-  if(id){let old=incidents.find(x=>x.id===id);if(old){let completedAt=old.completedAt;if(v.status==="closed" && old.status!=="closed") completedAt=new Date().toISOString();if(v.status!=="closed") completedAt="";Object.assign(old,v,{completedAt});}}else incidents.push({id:crypto.randomUUID(),createdAt:new Date().toISOString(),completedAt:v.status==="closed"?new Date().toISOString():"",...v});
-  save();$("incidentDlg").close();renderAll()
+  e.preventDefault();
+  const id=String($("incidentId").value||"");
+  const no=$("incidentNo").value.trim();
+  const duplicate=incidents.some(x=>String(x.id)!==id && normalizeImportText(x.no)===normalizeImportText(no)) || history.some(x=>x.type==="incident" && normalizeImportText(x.item?.no)===normalizeImportText(no));
+  if(duplicate){alert("این شماره Incident قبلاً ثبت شده است."); return;}
+  const v={no,subject:$("incidentSubject").value.trim(),reg:$("incidentDate").value,contractor:$("contractor").value.trim(),
+    f1:$("follow1").value,f2:$("follow2").value,status:$("incidentStatus").value,progress:Math.max(0,Math.min(100,Number($("incidentProgress").value)||0)),description:$("incidentDescription").value.trim()};
+  if(id){
+    const old=incidents.find(x=>String(x.id)===id);
+    if(!old){alert("Incident موردنظر پیدا نشد."); return;}
+    let completedAt=old.completedAt||"";
+    if(v.status==="closed" && old.status!=="closed") completedAt=new Date().toISOString();
+    if(v.status!=="closed") completedAt="";
+    Object.assign(old,v,{completedAt});
+  }else{
+    incidents.push({id:makeId(),createdAt:new Date().toISOString(),completedAt:v.status==="closed"?new Date().toISOString():"",...v});
+  }
+  if(save()){ $("incidentDlg").close(); renderAll(); }
 }
 
 function openTask(){
@@ -268,7 +313,7 @@ function editTask(id){
 function deleteTask(id){
   if(confirm("این Task حذف شود؟")){
     let item=tasks.find(x=>x.id===id);
-    if(item) history.push({id:crypto.randomUUID(),type:"task",action:"deleted",at:new Date().toISOString(),item:{...item}});
+    if(item) history.push({id:makeId(),type:"task",action:"deleted",at:new Date().toISOString(),item:{...item}});
     tasks=tasks.filter(x=>x.id!==id);save();renderAll();
   }
 }
@@ -276,7 +321,7 @@ function deleteTask(id){
 $("taskForm").onsubmit=e=>{
   e.preventDefault();let id=$("taskId").value;
   let v={name:$("taskName").value.trim(),time:$("taskTime").value,description:$("taskDescription").value.trim(),person:$("taskPerson").value.trim(),date:$("taskDate").value,status:$("taskStatus").value};
-  if(id){let old=tasks.find(x=>x.id===id);if(old){let completedAt=old.completedAt;if(v.status==="done" && old.status!=="done") completedAt=new Date().toISOString();if(v.status!=="done") completedAt="";Object.assign(old,v,{completedAt});}}else tasks.push({id:crypto.randomUUID(),createdAt:new Date().toISOString(),completedAt:v.status==="done"?new Date().toISOString():"",...v});
+  if(id){let old=tasks.find(x=>x.id===id);if(old){let completedAt=old.completedAt;if(v.status==="done" && old.status!=="done") completedAt=new Date().toISOString();if(v.status!=="done") completedAt="";Object.assign(old,v,{completedAt});}}else tasks.push({id:makeId(),createdAt:new Date().toISOString(),completedAt:v.status==="done"?new Date().toISOString():"",...v});
   save();$("taskDlg").close();renderAll()
 }
 
@@ -333,7 +378,7 @@ $("closeMsh").onclick=()=>$("mshDlg").close();
 $("mshAdd").onclick=()=>{$("mshForm").reset();$("mshFormDlg").showModal()};
 $("mshSearch").oninput=renderMsh;
 document.querySelectorAll("[data-msh-contractor]").forEach(b=>b.onclick=()=>{mshFilter=b.dataset.mshContractor;document.querySelectorAll("[data-msh-contractor]").forEach(x=>x.classList.toggle("active",x===b));renderMsh()});
-$("mshForm").onsubmit=e=>{e.preventDefault();const zone=$("mshZone").value.trim();const contractor=$("mshContractor").value;if(mshZones.some(x=>String(x.zone)===zone)){alert("این شماره زون قبلاً ثبت شده است.");return;}mshZones.push({id:crypto.randomUUID(),zone,contractor,createdAt:new Date().toISOString()});save();$("mshFormDlg").close();renderMsh()};
+$("mshForm").onsubmit=e=>{e.preventDefault();const zone=$("mshZone").value.trim();const contractor=$("mshContractor").value;if(mshZones.some(x=>String(x.zone)===zone)){alert("این شماره زون قبلاً ثبت شده است.");return;}mshZones.push({id:makeId(),zone,contractor,createdAt:new Date().toISOString()});save();$("mshFormDlg").close();renderMsh()};
 // XLSX import for Incident registration.
 // Excel columns used ONLY: 1=Incident number, 3=Title. Registration time is set to import time.
 function normalizeImportText(value){
@@ -394,7 +439,7 @@ async function importIncidentsFromXlsx(file){
       batchNumbers.add(key);
 
       imported.push({
-        id:crypto.randomUUID(),
+        id:makeId(),
         createdAt:importTime.toISOString(),
         completedAt:"",
         no,
