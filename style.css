@@ -99,12 +99,8 @@ header b{font-size:14px}
 #incidentRows tr.age-red td,#incidentRows tr.age-red td b,#incidentRows tr.age-red .status,#incidentRows tr.age-red .elapsed{color:#ff626d}
 #incidentRows tr.age-orange .status i,#incidentRows tr.age-red .status i{color:initial}
 #incidentRows tr.age-orange,#incidentRows tr.age-red{background:transparent}
-#incidentRows tr:nth-child(1) td{background:#121419}
-#incidentRows tr:nth-child(2) td{background:#111318}
-#incidentRows tr:nth-child(3) td{background:#101217}
-#incidentRows tr:nth-child(4) td{background:#0f1116}
-#incidentRows tr:nth-child(5) td{background:#0e1015}
-#incidentRows tr:nth-child(n+6) td{background:#0d0f14}
+#incidentRows tr:nth-child(odd) td{background:#101217}
+#incidentRows tr:nth-child(even) td{background:#15171b}
 #incidentRows .rowactions button{background:transparent}
 #incidentRows .age-orange .rowactions .icon-edit,#incidentRows .age-orange .rowactions .icon-delete{color:#ffad4d}
 #incidentRows .age-red .rowactions .icon-edit,#incidentRows .age-red .rowactions .icon-delete{color:#ff626d}
@@ -145,25 +141,5 @@ header b{font-size:14px}
   .performance-note{font-size:9px}
 }
 
-/* Incident number and alternating rows */
-.incident-number{white-space:nowrap;text-align:center;min-width:72px}
-.incident-number b{display:block;font-size:10px;line-height:1.1;font-weight:800}
-.incident-number span{display:block;font-size:13px;line-height:1.15;font-weight:800;margin-top:2px}
-#incidentRows tr:nth-child(odd) td{background:#121419}
-#incidentRows tr:nth-child(even) td{background:#17191e}
-#incidentRows tr.age-orange:nth-child(odd) td{background:#332414}
-#incidentRows tr.age-orange:nth-child(even) td{background:#3b2a18}
-#incidentRows tr.age-red:nth-child(odd) td{background:#351719}
-#incidentRows tr.age-red:nth-child(even) td{background:#401b1e}
-#historyIncidentRows th,#historyIncidentRows td{font-size:10px;padding:8px}
-#historyIncidentRows .history-badge{font-size:9px;padding:3px 6px}
-#historyIncidentRows .incident-number b{font-size:8px}
-#historyIncidentRows .incident-number span{font-size:10px}
-.line-chart-title{border-right:4px solid #8d96a8}.line-chart-title span{background:#8d96a8}
-.line-chart-wrap{background:#121419;border:1px solid #292c32;border-radius:13px;padding:8px 8px 2px;overflow:hidden}
-#contractorLineChart{display:block;width:100%;height:230px}
-
-/* Final: simple Incident History table */
-#historyIncidentRows th, #historyIncidentRows td { font-size:10px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif; font-weight:400; }
-#historyIncidentRows td .history-badge { font-size:10px; font-weight:400; padding:0; background:none; border:0; color:inherit; }
-#historyIncidentRows .incident-number b, #historyIncidentRows .incident-number span { font-size:10px; font-weight:400; }
+#historyIncidentRows th,#historyIncidentRows td,#historyIncidentRows td b,#historyIncidentRows .history-badge{font-size:10px;font-weight:400}
+#historyIncidentRows .history-badge{display:inline;padding:0;background:transparent;border:0;color:inherit;border-radius:0}

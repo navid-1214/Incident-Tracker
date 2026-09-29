@@ -7,7 +7,6 @@ let mshZones=JSON.parse(localStorage.getItem(MK)||"[]");
 let mshFilter="all";
 let iDate=today(),tDate=today(),iFilter="all",iContractorFilter="all";
 const $=id=>document.getElementById(id);
-function makeId(){try{if(globalThis.crypto?.randomUUID)return globalThis.crypto.randomUUID()}catch(e){} return "id-"+Date.now()+"-"+Math.random().toString(36).slice(2)}
 
 function today(){
   const d=new Date();
@@ -27,32 +26,11 @@ function shiftISO(iso,days){
 }
 function fa(s){if(!s)return"-";return new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(s+"T00:00:00"))}
 function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function save(){
-  try{
-    localStorage.setItem(IK,JSON.stringify(incidents));
-    localStorage.setItem(TK,JSON.stringify(tasks));
-    localStorage.setItem(HK,JSON.stringify(history));
-    localStorage.setItem(MK,JSON.stringify(mshZones));
-    return true;
-  }catch(err){
-    console.error("Incident Tracker save error",err);
-    alert("ذخیره اطلاعات انجام نشد. فضای ذخیره‌سازی مرورگر را بررسی کنید.");
-    return false;
-  }
-}
+function save(){localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks));localStorage.setItem(HK,JSON.stringify(history));localStorage.setItem(MK,JSON.stringify(mshZones))}
 function elapsed(iso,endIso){let end=endIso?new Date(endIso):new Date();let n=Math.max(0,Math.floor((end-new Date(iso))/1000)),h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":")}
 function incStatus(s){return s==="open"?"باز":s==="progress"?"در حال پیگیری":"اتمام کار"}
 function incDot(s){return s==="open"?"green":s==="progress"?"orange":"blue"}
 function incAge(i){if(i.status==="closed")return"";let h=(Date.now()-new Date(i.createdAt))/36e5;return h>=48?"age-red":h>=24?"age-orange":""}
-
-function displayIncidentNumber(no){
-  const s=normalizeIncidentNumber(no);
-  return s.replace(/^INC[-\s:]*/i,"").trim() || s;
-}
-function normalizeIncidentNumber(no){
-  return String(no??"").replace(/\s+/g," ").trim();
-}
-function persianNumber(n){return String(n).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);}
 
 function renderIncidents(){
   $("dateI").textContent=fa(iDate);
@@ -62,14 +40,13 @@ function renderIncidents(){
     .filter(i=>iFilter==="all"||i.status===iFilter)
     .filter(i=>i.status!=="closed")
     .filter(i=>iContractorFilter==="all"||(iContractorFilter==="فرنیروی شرق" && (i.contractor==="فرنیروی شرق"||i.contractor==="فرنیرو"))||i.contractor===iContractorFilter);
-  $("incidentRows").innerHTML=list.map(i=>`<tr class="${incAge(i)}" data-id="${esc(i.id)}">
-<td class="incident-number"><b>INC-</b><span>${esc(displayIncidentNumber(i.no))}</span></td><td>${esc(i.subject)}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td>
+  $("incidentRows").innerHTML=list.map(i=>`<tr class="${incAge(i)}">
+<td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td>
 <td>${fa(i.f1)}</td><td>${completionDateText(i)}</td><td class="status"><i class="${incDot(i.status)}"></i>${incStatus(i.status)}</td>
 <td class="progress">${i.progress}%<div class="bar"><span style="width:${i.progress}%"></span></div></td>
 <td class="elapsed">${elapsed(i.createdAt,i.completedAt)}</td><td>${esc(i.description||"-")}</td>
-<td><div class="rowactions"><button type="button" class="icon-edit" data-id="${esc(i.id)}" aria-label="ویرایش" title="ویرایش">✏️</button><button type="button" class="icon-delete" data-id="${esc(i.id)}" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
+<td><div class="rowactions"><button class="icon-edit" onclick="editIncident('${i.id}')" aria-label="ویرایش" title="ویرایش">✏️</button><button class="icon-delete" onclick="deleteIncident('${i.id}')" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
   $("emptyI").style.display=list.length?"none":"block";
-  bindIncidentRowActions();
   renderContractorStats();
 }
 
@@ -79,12 +56,11 @@ function renderTasks(){
   // An unfinished Task stays on the main list on every date on/after
   // its original date until it is marked done.
   let list=tasks.filter(t=>t.date<=tDate).filter(t=>t.status!=="done");
-  $("taskRows").innerHTML=list.map(t=>`<tr data-id="${esc(t.id)}">
+  $("taskRows").innerHTML=list.map(t=>`<tr>
 <td><b>${esc(t.name)}</b></td><td>${esc(t.time)}</td><td>${esc(t.description||"-")}</td><td>${esc(t.person||"-")}</td>
 <td>${fa(t.date)}</td><td>${taskStatusText(t.status)}</td><td class="elapsed">${elapsed(t.createdAt,t.completedAt)}</td>
-<td><div class="rowactions"><button type="button" class="icon-edit" data-task-id="${esc(t.id)}" aria-label="ویرایش" title="ویرایش">✏️</button><button type="button" class="icon-delete" data-task-id="${esc(t.id)}" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
+<td><div class="rowactions"><button class="icon-edit" onclick="editTask('${t.id}')" aria-label="ویرایش" title="ویرایش">✏️</button><button class="icon-delete" onclick="deleteTask('${t.id}')" aria-label="حذف" title="حذف">🗑️</button></div></td></tr>`).join("");
   $("emptyT").style.display=list.length?"none":"block";
-  bindTaskRowActions();
 }
 
 function formatDuration(ms){
@@ -120,12 +96,11 @@ function renderHistory(){
   const q=($("historySearch")?.value||"").toLowerCase().trim();
   const allIncidents=historyIncidentItems().filter(i=>!q||[i.no,i.subject,i.contractor,i.description].join(" ").toLowerCase().includes(q));
   $("historyIncidentRows").innerHTML=allIncidents.map(i=>`<tr class="history-incident ${i.historyType==="deleted"?"history-deleted":""}" data-history-id="${esc(i.id)}" tabindex="0" role="button" aria-label="نمایش جزئیات ${esc(i.no)}">
-<td><span class="history-badge incident-badge">${i.historyType==="deleted"?"Incident - حذف شده":"Incident"}</span></td><td class="incident-number"><b>INC-</b><span>${esc(displayIncidentNumber(i.no))}</span></td><td>${esc(i.subject)}</td>
+<td><span class="history-badge incident-badge">${i.historyType==="deleted"?"Incident - حذف شده":"Incident"}</span></td><td><b>${esc(i.no)}</b></td><td>${esc(i.subject)}</td>
 <td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td><td>${i.progress}%</td><td>${esc(i.description||"-")}</td>
 <td>${fa(i.f1)}</td><td>${completionDateText(i)}</td></tr>`).join("");
   $("emptyHI").style.display=allIncidents.length?"none":"block";
   renderContractorPerformance();
-  renderContractorLineChart();
   document.querySelectorAll("[data-history-id]").forEach(row=>{
     const open=()=>openHistoryIncident(row.dataset.historyId);
     row.onclick=open;
@@ -170,50 +145,6 @@ function renderContractorPerformance(){
   </article>`).join("");
 }
 
-function renderContractorLineChart(){
-  const canvas=$("contractorLineChart");
-  if(!canvas)return;
-  const ctx=canvas.getContext("2d");
-  const rect=canvas.getBoundingClientRect();
-  const dpr=window.devicePixelRatio||1;
-  const w=Math.max(320,Math.floor(rect.width));
-  const h=230;
-  canvas.width=w*dpr; canvas.height=h*dpr;
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.clearRect(0,0,w,h);
-
-  const names=["شعبه","فرنیروی شرق","لاوین اساک"];
-  const values=names.map(name=>{
-    const vals=historyIncidentItems().filter(i=>i.status==="closed"&&i.contractor===name).map(incidentCompletionMs).filter(v=>v!==null);
-    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length/3600000 : null;
-  });
-  const all=historyIncidentItems().filter(i=>i.status==="closed").map(incidentCompletionMs).filter(v=>v!==null);
-  values.push(all.length?all.reduce((a,b)=>a+b,0)/all.length/3600000:null);
-  const labels=[...names,"کل"];
-  const valid=values.filter(v=>v!==null);
-  const max=Math.max(1,...valid)*1.2;
-  const pad={l:42,r:16,t:20,b:42};
-  const plotW=w-pad.l-pad.r, plotH=h-pad.t-pad.b;
-  ctx.strokeStyle="#30333a"; ctx.lineWidth=1;
-  ctx.fillStyle="#858894"; ctx.font="10px -apple-system,BlinkMacSystemFont,Segoe UI,Tahoma,sans-serif";
-  ctx.textAlign="right";
-  for(let k=0;k<=4;k++){
-    const y=pad.t+plotH-(plotH*k/4);
-    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
-    ctx.fillText((max*k/4).toFixed(1)+"h",pad.l-6,y+3);
-  }
-  const xs=labels.map((_,i)=>pad.l+(plotW*(i/(labels.length-1))));
-  ctx.textAlign="center"; labels.forEach((label,i)=>ctx.fillText(label,xs[i],h-14));
-  ctx.strokeStyle="#6b7280";ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,pad.t+plotH);ctx.lineTo(w-pad.r,pad.t+plotH);ctx.stroke();
-  const points=values.map((v,i)=>v===null?null:{x:xs[i],y:pad.t+plotH-(v/max)*plotH});
-  ctx.strokeStyle="#d7d9de";ctx.lineWidth=2;ctx.beginPath();
-  let started=false;
-  points.forEach(pt=>{if(!pt){started=false;return;} if(!started){ctx.moveTo(pt.x,pt.y);started=true;}else ctx.lineTo(pt.x,pt.y);});
-  ctx.stroke();
-  points.forEach((pt,i)=>{if(!pt)return;ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(pt.x,pt.y,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#d7d9de";ctx.stroke();ctx.fillStyle="#fff";ctx.font="bold 10px -apple-system,BlinkMacSystemFont,Segoe UI,Tahoma,sans-serif";ctx.fillText(values[i].toFixed(1)+"h",pt.x,pt.y-9);});
-  if(!valid.length){ctx.fillStyle="#777b86";ctx.font="12px -apple-system,BlinkMacSystemFont,Segoe UI,Tahoma,sans-serif";ctx.textAlign="center";ctx.fillText("برای رسم نمودار هنوز Incident تکمیل‌شده با زمان معتبر وجود ندارد.",w/2,h/2);}
-}
-
 function setContractorFilter(name){
   iContractorFilter=name;
   document.querySelectorAll("[data-contractor-filter]").forEach(el=>{
@@ -235,34 +166,6 @@ function renderContractorStats(){
 
 function renderAll(){renderIncidents();renderTasks();renderHistory();renderContractorStats()}
 
-function bindIncidentRowActions(){
-  document.querySelectorAll("#incidentRows .icon-edit").forEach(btn=>{
-    btn.onclick=e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      const id=String(btn.dataset.id||btn.closest("tr")?.dataset.id||"");
-      if(id) editIncident(id);
-    };
-  });
-  document.querySelectorAll("#incidentRows .icon-delete").forEach(btn=>{
-    btn.onclick=e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      const id=String(btn.dataset.id||btn.closest("tr")?.dataset.id||"");
-      if(id) deleteIncident(id);
-    };
-  });
-}
-
-function bindTaskRowActions(){
-  document.querySelectorAll("#taskRows .icon-edit").forEach(btn=>{
-    btn.onclick=e=>{e.preventDefault();e.stopPropagation();const id=String(btn.dataset.taskId||btn.closest("tr")?.dataset.id||"");if(id) editTask(id);};
-  });
-  document.querySelectorAll("#taskRows .icon-delete").forEach(btn=>{
-    btn.onclick=e=>{e.preventDefault();e.stopPropagation();const id=String(btn.dataset.taskId||btn.closest("tr")?.dataset.id||"");if(id) deleteTask(id);};
-  });
-}
-
 function openIncident(){
   $("incidentForm").reset();$("incidentId").value="";$("incidentTitle").textContent="ثبت Incident";
   $("incidentDate").value=iDate;$("incidentStatus").value="open";$("incidentProgress").value=0;$("incidentDlg").showModal()
@@ -270,39 +173,23 @@ function openIncident(){
 function editIncident(id){
   let i=incidents.find(x=>x.id===id);if(!i)return;
   $("incidentId").value=id;$("incidentTitle").textContent="ویرایش Incident";$("incidentNo").value=i.no;$("incidentSubject").value=i.subject;
-  $("incidentDate").value=i.reg;$("contractor").value=i.contractor||"";$("follow1").value=i.f1||"";$("follow2").value=i.f2||"";
+  $("incidentDate").value=i.reg;$("contractor").value=i.contractor||"";$("follow1").value=i.f1||"";
   $("incidentStatus").value=i.status;$("incidentProgress").value=i.progress;$("incidentDescription").value=i.description||"";$("incidentDlg").showModal()
 }
 function deleteIncident(id){
   if(confirm("این Incident حذف شود؟")){
     let item=incidents.find(x=>x.id===id);
-    if(item) history.push({id:makeId(),type:"incident",action:"deleted",at:new Date().toISOString(),item:{...item}});
+    if(item) history.push({id:crypto.randomUUID(),type:"incident",action:"deleted",at:new Date().toISOString(),item:{...item}});
     incidents=incidents.filter(x=>x.id!==id);save();renderAll();
   }
 }
 
 $("incidentForm").onsubmit=e=>{
-  e.preventDefault();
-  const id=String($("incidentId").value||"");
-  const no=$("incidentNo").value.trim();
-  const duplicate=incidents.some(x=>String(x.id)!==id && normalizeImportText(x.no)===normalizeImportText(no)) || history.some(x=>x.type==="incident" && normalizeImportText(x.item?.no)===normalizeImportText(no));
-  if(duplicate){alert("این شماره Incident قبلاً ثبت شده است."); return;}
-  const v={no,subject:$("incidentSubject").value.trim(),reg:$("incidentDate").value,contractor:$("contractor").value.trim(),
-    f1:$("follow1").value,f2:$("follow2").value,status:$("incidentStatus").value,progress:Math.max(0,Math.min(100,Number($("incidentProgress").value)||0)),description:$("incidentDescription").value.trim()};
-  if(id){
-    const old=incidents.find(x=>String(x.id)===id);
-    if(!old){alert("Incident موردنظر پیدا نشد."); return;}
-    let completedAt=old.completedAt||"";
-    if(v.status==="closed" && old.status!=="closed") completedAt=new Date().toISOString();
-    if(v.status!=="closed") completedAt="";
-    Object.assign(old,v,{completedAt});
-  }else{
-    incidents.push({id:makeId(),createdAt:new Date().toISOString(),completedAt:v.status==="closed"?new Date().toISOString():"",...v});
-  }
-  if(save()){
-    $("incidentDlg").close();
-    renderAll();
-  }
+  e.preventDefault();let id=$("incidentId").value;
+  let v={no:$("incidentNo").value.trim(),subject:$("incidentSubject").value.trim(),reg:$("incidentDate").value,contractor:$("contractor").value.trim(),
+  f1:$("follow1").value,status:$("incidentStatus").value,progress:Math.max(0,Math.min(100,Number($("incidentProgress").value)||0)),description:$("incidentDescription").value.trim()};
+  if(id){let old=incidents.find(x=>x.id===id);if(old){let completedAt=old.completedAt;if(v.status==="closed" && old.status!=="closed") completedAt=new Date().toISOString();if(v.status!=="closed") completedAt="";Object.assign(old,v,{completedAt});}}else incidents.push({id:crypto.randomUUID(),createdAt:new Date().toISOString(),completedAt:v.status==="closed"?new Date().toISOString():"",...v});
+  save();$("incidentDlg").close();renderAll()
 }
 
 function openTask(){
@@ -316,7 +203,7 @@ function editTask(id){
 function deleteTask(id){
   if(confirm("این Task حذف شود؟")){
     let item=tasks.find(x=>x.id===id);
-    if(item) history.push({id:makeId(),type:"task",action:"deleted",at:new Date().toISOString(),item:{...item}});
+    if(item) history.push({id:crypto.randomUUID(),type:"task",action:"deleted",at:new Date().toISOString(),item:{...item}});
     tasks=tasks.filter(x=>x.id!==id);save();renderAll();
   }
 }
@@ -324,7 +211,7 @@ function deleteTask(id){
 $("taskForm").onsubmit=e=>{
   e.preventDefault();let id=$("taskId").value;
   let v={name:$("taskName").value.trim(),time:$("taskTime").value,description:$("taskDescription").value.trim(),person:$("taskPerson").value.trim(),date:$("taskDate").value,status:$("taskStatus").value};
-  if(id){let old=tasks.find(x=>x.id===id);if(old){let completedAt=old.completedAt;if(v.status==="done" && old.status!=="done") completedAt=new Date().toISOString();if(v.status!=="done") completedAt="";Object.assign(old,v,{completedAt});}}else tasks.push({id:makeId(),createdAt:new Date().toISOString(),completedAt:v.status==="done"?new Date().toISOString():"",...v});
+  if(id){let old=tasks.find(x=>x.id===id);if(old){let completedAt=old.completedAt;if(v.status==="done" && old.status!=="done") completedAt=new Date().toISOString();if(v.status!=="done") completedAt="";Object.assign(old,v,{completedAt});}}else tasks.push({id:crypto.randomUUID(),createdAt:new Date().toISOString(),completedAt:v.status==="done"?new Date().toISOString():"",...v});
   save();$("taskDlg").close();renderAll()
 }
 
@@ -381,7 +268,7 @@ $("closeMsh").onclick=()=>$("mshDlg").close();
 $("mshAdd").onclick=()=>{$("mshForm").reset();$("mshFormDlg").showModal()};
 $("mshSearch").oninput=renderMsh;
 document.querySelectorAll("[data-msh-contractor]").forEach(b=>b.onclick=()=>{mshFilter=b.dataset.mshContractor;document.querySelectorAll("[data-msh-contractor]").forEach(x=>x.classList.toggle("active",x===b));renderMsh()});
-$("mshForm").onsubmit=e=>{e.preventDefault();const zone=$("mshZone").value.trim();const contractor=$("mshContractor").value;if(mshZones.some(x=>String(x.zone)===zone)){alert("این شماره زون قبلاً ثبت شده است.");return;}mshZones.push({id:makeId(),zone,contractor,createdAt:new Date().toISOString()});save();$("mshFormDlg").close();renderMsh()};
+$("mshForm").onsubmit=e=>{e.preventDefault();const zone=$("mshZone").value.trim();const contractor=$("mshContractor").value;if(mshZones.some(x=>String(x.zone)===zone)){alert("این شماره زون قبلاً ثبت شده است.");return;}mshZones.push({id:crypto.randomUUID(),zone,contractor,createdAt:new Date().toISOString()});save();$("mshFormDlg").close();renderMsh()};
 // XLSX import for Incident registration.
 // Excel columns used ONLY: 1=Incident number, 3=Title. Registration time is set to import time.
 function normalizeImportText(value){
@@ -442,7 +329,7 @@ async function importIncidentsFromXlsx(file){
       batchNumbers.add(key);
 
       imported.push({
-        id:makeId(),
+        id:crypto.randomUUID(),
         createdAt:importTime.toISOString(),
         completedAt:"",
         no,
@@ -463,12 +350,9 @@ async function importIncidentsFromXlsx(file){
     if(imported.length) save();
     renderAll();
 
-    let msg=`${persianNumber(imported.length)} مورد با موفقیت وارد شد.`;
-    if(skippedDuplicate.length){
-      msg+=`\n${persianNumber(skippedDuplicate.length)} مورد تکراری وارد نشد.`;
-      msg+=`\nشماره‌های تکراری: ${skippedDuplicate.map(x=>"INC-"+displayIncidentNumber(x)).join("، ")}`;
-    }
-    if(skippedInvalid.length) msg+=`\n${persianNumber(skippedInvalid.length)} ردیف بدون شماره Incident نادیده گرفته شد.`;
+    let msg=`${imported.length} Incident با موفقیت وارد شد.`;
+    if(skippedDuplicate.length) msg+=`\n${skippedDuplicate.length} مورد به دلیل شماره Incident تکراری وارد نشد.`;
+    if(skippedInvalid.length) msg+=`\n${skippedInvalid.length} ردیف بدون شماره Incident نادیده گرفته شد.`;
     alert(msg);
   }catch(err){
     console.error(err);

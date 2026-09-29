@@ -53,7 +53,7 @@
 <section id="history" class="page">
   <div class="toolbar"><div class="search">🔎 <input id="historySearch" placeholder="جستجوی History"></div></div>
 
-  <div class="history-title incident-title"><span></span>Incident History</div>
+  <div class="history-title incident-title"><span></span>Incident های History</div>
   <div class="tablewrap history-wrap"><table><thead><tr>
     <th>نوع</th><th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>درصد پیشرفت</th><th>توضیحات</th><th>پیگیری ۱</th><th>اتمام کار</th>
   </tr></thead><tbody id="historyIncidentRows"></tbody></table></div>
@@ -61,8 +61,6 @@
 
   <div class="history-title performance-title"><span></span>عملکرد پیمانکاران</div>
   <div id="contractorPerformance" class="contractor-performance"></div>
-  <div class="history-title line-chart-title"><span></span>نمودار خطی عملکرد پیمانکاران</div>
-  <div class="line-chart-wrap"><canvas id="contractorLineChart" aria-label="نمودار خطی میانگین زمان رفع مشکل پیمانکاران"></canvas></div>
   <div class="performance-note">میانگین زمان رفع فقط بر اساس Incidentهای تکمیل‌شده با زمان ثبت و زمان اتمام معتبر محاسبه می‌شود.</div>
 </section>
 
@@ -106,7 +104,7 @@
 <label>وضعیت<select id="incidentStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label>
 <label>درصد پیشرفت<input id="incidentProgress" type="number" min="0" max="100" value="0"></label>
 <label>توضیحات<textarea id="incidentDescription" rows="4"></textarea></label>
-<div class="actions"><button type="button" data-close="incidentDlg">انصراف</button><button type="submit" class="primary">ذخیره</button></div>
+<div class="actions"><button type="button" data-close="incidentDlg">انصراف</button><button class="primary">ذخیره</button></div>
 </form></dialog>
 
 <dialog id="taskDlg"><form id="taskForm">
