@@ -67,7 +67,7 @@ function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList
 function renderAll(){renderIncidents();renderCustomers();renderHistory();renderTasks();renderMsh()}
 
 $("incidentProgress").oninput=()=>$("progressValue").value=$("incidentProgress").value+"%";
-$("addIncident").onclick=openIncident;$("addCustomer").onclick=openCustomer;$("taskLauncher").onclick=()=>{$("taskListDlg").showModal();renderTasks()};$("themeToggle").onclick=toggleTheme;
+$("addIncident").onclick=openIncident;$("addCustomer").onclick=openCustomer;$("taskLauncher").onclick=openTask;$("themeToggle").onclick=toggleTheme;
 $("mshLauncher").onclick=openMsh;$("closeMsh").onclick=()=>$("mshDlg").close();$("mshAdd").onclick=()=>{$("mshForm").reset();$("mshFormDlg").showModal()};$("mshSearch").oninput=renderMsh;
 document.querySelectorAll("[data-msh-contractor]").forEach(b=>b.onclick=()=>{mshFilter=b.dataset.mshContractor;document.querySelectorAll("[data-msh-contractor]").forEach(x=>x.classList.toggle("active",x===b));renderMsh()});
 $("mshForm").onsubmit=e=>{e.preventDefault();const zone=$("mshZone").value.trim(),contractor=$("mshContractor").value;if(mshZones.some(x=>String(x.zone)===zone)){alert("این شماره زون قبلاً ثبت شده است.");return}mshZones.push({id:crypto.randomUUID(),zone,contractor,createdAt:new Date().toISOString()});save();$("mshFormDlg").close();renderMsh()};

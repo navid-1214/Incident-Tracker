@@ -11,19 +11,19 @@
 <body>
 <header>
   <div class="brand-row">
-    <button id="mshLauncher" class="circle-launcher logo-launcher" type="button" aria-label="MSH Zone Manager"><img src="assets/asiatech-logo.jpeg" alt="asiatech"></button>
-    <button id="taskLauncher" class="circle-launcher task-launcher" type="button" aria-label="Task"><span>✓</span><small>Task</small></button>
     <div class="header-title">Network and Customer<br><span>Tracking System</span></div>
     <button id="themeToggle" class="theme-toggle" type="button" aria-label="تغییر تم"><span id="themeIcon">☀️</span><span id="themeText">روز</span></button>
+    <button id="taskLauncher" class="circle-launcher task-launcher" type="button" aria-label="Task"><span>✓</span><small>Task</small></button>
+    <button id="mshLauncher" class="circle-launcher logo-launcher" type="button" aria-label="ZON"><strong>ZON</strong></button>
   </div>
 </header>
 
 <main>
 <section id="incidents" class="page active">
-  <div class="section-head"><h2>Incident Network</h2><p>مدیریت و پیگیری Incidentهای شبکه</p></div>
+  <div class="section-head"><h2>Incident Network</h2></div>
   <div class="toolbar">
     <div class="datebar"><button id="prevI">‹</button><button id="todayI">📅 امروز</button><span id="dateI"></span><button id="nextI">›</button></div>
-    <div class="toolbar-actions"><button id="xlsxImportBtn" type="button" class="secondary">📎 ورود Excel</button><button id="addIncident" class="primary">＋ Incident جدید</button></div>
+    <div class="toolbar-actions"><button id="xlsxImportBtn" type="button" class="xlsx-attach" aria-label="پیوست فایل Excel"><span class="attach-icon">📎</span><small>xlsx</small></button><button id="addIncident" class="primary">＋ Incident Network</button></div>
   </div>
   <div class="filters"><button class="filter" data-status="open"><i class="green"></i> باز</button><button class="filter" data-status="progress"><i class="orange"></i> در حال پیگیری</button></div>
   <div class="tablewrap"><table><thead><tr><th>شماره Incident</th><th>موضوع</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>پیگیری ۱</th><th>اتمام کار</th><th>وضعیت</th><th>درصد پیشرفت</th><th>زمان سپری شده</th><th>توضیحات</th><th>عملیات</th></tr></thead><tbody id="incidentRows"></tbody></table></div>
@@ -33,8 +33,8 @@
 </section>
 
 <section id="customer" class="page">
-  <div class="section-head"><h2>Incident Customer</h2><p>مدیریت و پیگیری Incidentهای مشتری</p></div>
-  <div class="toolbar"><div class="toolbar-actions"><button id="customerXlsxBtn" type="button" class="secondary">📎 ورود Excel</button><button id="addCustomer" class="primary">＋ Incident جدید</button></div></div>
+  <div class="section-head"><h2>Incident Customer</h2></div>
+  <div class="toolbar"><div class="toolbar-actions"><button id="customerXlsxBtn" type="button" class="xlsx-attach" aria-label="پیوست فایل Excel"><span class="attach-icon">📎</span><small>xlsx</small></button><button id="addCustomer" class="primary">＋ Incident Customer</button></div></div>
   <div class="tablewrap"><table class="customer-table"><thead><tr><th>Incident</th><th>عنوان</th><th>علت</th><th>پیمانکار</th><th>اپراتور بررسی کننده</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="customerRows"></tbody></table></div>
   <div id="emptyCustomer" class="empty">هنوز Incident Customer ثبت نشده است.</div>
   <div id="customerXlsxResult" class="xlsx-import-result" hidden></div>

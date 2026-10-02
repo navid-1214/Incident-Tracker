@@ -1,0 +1,10 @@
+Incident Tracker V16.2
+
+- Task circle opens the Task entry form directly.
+- ZON circle is text-only; Asiatech image removed from the circle.
+- Day/Night control is on the left; Task and ZON are on the right.
+- Removed the small explanatory subtitle under Incident Network/Customer titles.
+- Excel import control changed to a compact attachment-style button with xlsx badge.
+- Network action is labeled + Incident Network.
+- Customer action is labeled + Incident Customer.
+- No visible file chooser is shown at the bottom of Network, Customer, or History pages.
