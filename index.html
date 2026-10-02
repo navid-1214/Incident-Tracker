@@ -3,151 +3,75 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0b0d">
-<title>Incident Tracker</title>
+<meta name="theme-color" content="#111216">
+<title>Network and Customer Tracking System</title>
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 </head>
 <body>
 <header>
-  <b>Incident Tracker</b>
-  <button id="mshLauncher" class="asiatech-logo" type="button" aria-label="MSH Zone Manager"><span class="logo-text">asiatech</span></button>
+  <div class="brand-row">
+    <button id="mshLauncher" class="circle-launcher logo-launcher" type="button" aria-label="MSH Zone Manager"><img src="assets/asiatech-logo.jpeg" alt="asiatech"></button>
+    <button id="taskLauncher" class="circle-launcher task-launcher" type="button" aria-label="Task"><span>✓</span><small>Task</small></button>
+    <div class="header-title">Network and Customer<br><span>Tracking System</span></div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="تغییر تم"><span id="themeIcon">☀️</span><span id="themeText">روز</span></button>
+  </div>
 </header>
 
 <main>
 <section id="incidents" class="page active">
+  <div class="section-head"><h2>Incident Network</h2><p>مدیریت و پیگیری Incidentهای شبکه</p></div>
   <div class="toolbar">
     <div class="datebar"><button id="prevI">‹</button><button id="todayI">📅 امروز</button><span id="dateI"></span><button id="nextI">›</button></div>
-    <div class="toolbar-actions"><button id="xlsxImportBtn" type="button" class="xlsx-toolbar-btn">📎 xlsx</button><button id="addIncident" class="primary">＋ ثبت Incident</button></div>
+    <div class="toolbar-actions"><button id="xlsxImportBtn" type="button" class="secondary">📎 ورود Excel</button><button id="addIncident" class="primary">＋ Incident جدید</button></div>
   </div>
-  <div class="filters">
-    <button class="filter" data-status="open"><i class="green"></i> باز</button>
-    <button class="filter" data-status="progress"><i class="orange"></i> در حال پیگیری</button>
-  </div>
-  <div class="tablewrap"><table><thead><tr>
-    <th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th>
-    <th>پیگیری ۱</th><th>اتمام کار</th><th>وضعیت</th><th>درصد پیشرفت</th>
-    <th>زمان سپری شده</th><th>توضیحات</th><th>عملیات</th>
-  </tr></thead><tbody id="incidentRows"></tbody></table></div>
-  <div id="xlsxImportResult" class="xlsx-import-result" hidden></div>
-  <div id="contractorStats" class="contractor-stats" aria-label="فیلتر و آمار Incident پیمانکارها">
-    <button type="button" class="stat-card stat-branch" data-contractor-filter="شعبه"><span>شعبه</span><b id="count0">0</b></button>
-    <button type="button" class="stat-card stat-east" data-contractor-filter="فرنیروی شرق"><span>فرنیروی شرق</span><b id="count1">0</b></button>
-    <button type="button" class="stat-card stat-lavin" data-contractor-filter="لاوین اساک"><span>لاوین اساک</span><b id="count2">0</b></button>
-    <button type="button" class="stat-card stat-total active" data-contractor-filter="all"><span>تعداد کل Incident</span><b id="countTotal">0</b></button>
-  </div>
+  <div class="filters"><button class="filter" data-status="open"><i class="green"></i> باز</button><button class="filter" data-status="progress"><i class="orange"></i> در حال پیگیری</button></div>
+  <div class="tablewrap"><table><thead><tr><th>شماره Incident</th><th>موضوع</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>پیگیری ۱</th><th>اتمام کار</th><th>وضعیت</th><th>درصد پیشرفت</th><th>زمان سپری شده</th><th>توضیحات</th><th>عملیات</th></tr></thead><tbody id="incidentRows"></tbody></table></div>
+  <div id="contractorStats" class="contractor-stats"><button type="button" class="stat-card stat-branch" data-contractor-filter="شعبه"><span>شعبه</span><b id="count0">0</b></button><button type="button" class="stat-card stat-east" data-contractor-filter="فرنیروی شرق"><span>فرنیروی شرق</span><b id="count1">0</b></button><button type="button" class="stat-card stat-lavin" data-contractor-filter="لاوین اساک"><span>لاوین اساک</span><b id="count2">0</b></button><button type="button" class="stat-card stat-total active" data-contractor-filter="all"><span>تعداد کل Incident</span><b id="countTotal">0</b></button></div>
   <div id="emptyI" class="empty">برای تاریخ انتخاب‌شده Incident ثبت نشده است.</div>
+  <div id="xlsxImportResult" class="xlsx-import-result" hidden></div>
 </section>
 
-<section id="tasks" class="page">
-  <div class="toolbar">
-    <div class="datebar"><button id="prevT">‹</button><button id="todayT">📅 امروز</button><span id="dateT"></span><button id="nextT">›</button></div>
-    <button id="addTask" class="primary">＋ ثبت Task</button>
-  </div>
-  <div class="tablewrap"><table><thead><tr>
-    <th>عنوان Task</th><th>زمان</th><th>توضیحات</th><th>با چه شخصی</th><th>تاریخ</th>
-    <th>وضعیت</th><th>زمان سپری شده</th><th>عملیات</th>
-  </tr></thead><tbody id="taskRows"></tbody></table></div>
-  <div id="emptyT" class="empty">برای تاریخ انتخاب‌شده Taskای ثبت نشده است.</div>
+<section id="customer" class="page">
+  <div class="section-head"><h2>Incident Customer</h2><p>مدیریت و پیگیری Incidentهای مشتری</p></div>
+  <div class="toolbar"><div class="toolbar-actions"><button id="customerXlsxBtn" type="button" class="secondary">📎 ورود Excel</button><button id="addCustomer" class="primary">＋ Incident جدید</button></div></div>
+  <div class="tablewrap"><table class="customer-table"><thead><tr><th>Incident</th><th>عنوان</th><th>علت</th><th>پیمانکار</th><th>اپراتور بررسی کننده</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="customerRows"></tbody></table></div>
+  <div id="emptyCustomer" class="empty">هنوز Incident Customer ثبت نشده است.</div>
+  <div id="customerXlsxResult" class="xlsx-import-result" hidden></div>
 </section>
 
 <section id="history" class="page">
   <div class="toolbar"><div class="search">🔎 <input id="historySearch" placeholder="جستجوی History"></div></div>
-
   <div class="history-title incident-title"><span></span>Incident History</div>
-  <div class="tablewrap history-wrap"><table><thead><tr>
-    <th>نوع</th><th>شماره Incident</th><th>موضوع Incident</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>درصد پیشرفت</th><th>توضیحات</th><th>پیگیری ۱</th><th>اتمام کار</th>
-  </tr></thead><tbody id="historyIncidentRows"></tbody></table></div>
-  <div id="emptyHI" class="empty">هنوز Incident اتمام کاری در History وجود ندارد.</div>
-  <div class="history-title performance-title"><span></span>عملکرد پیمانکاران</div>
-  <div id="contractorPerformance" class="contractor-performance"></div>
-  <div class="performance-note">میانگین زمان رفع فقط بر اساس Incidentهای تکمیل‌شده با زمان ثبت و زمان اتمام معتبر محاسبه می‌شود.</div>
-</section>
+  <div class="tablewrap history-wrap"><table class="history-table"><thead><tr><th>نوع</th><th>شماره Incident</th><th>موضوع</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>درصد پیشرفت</th><th>توضیحات</th><th>پیگیری ۱</th><th>اتمام کار</th></tr></thead><tbody id="historyIncidentRows"></tbody></table></div>
+  <div id="emptyHI" class="empty">هنوز Incident اتمام کاری یا حذف‌شده‌ای در History وجود ندارد.</div>
+  <div id="networkHistoryPager" class="pager"></div>
 
+  <div class="history-title customer-title"><span></span>Incident Customer History</div>
+  <div class="tablewrap history-wrap"><table class="history-table customer-history-table"><thead><tr><th>نوع</th><th>Incident</th><th>عنوان</th><th>علت</th><th>پیمانکار</th><th>اپراتور بررسی کننده</th><th>وضعیت</th></tr></thead><tbody id="customerHistoryRows"></tbody></table></div>
+  <div id="emptyCH" class="empty">هنوز Incident Customer اتمام کاری یا حذف‌شده‌ای در History وجود ندارد.</div>
+  <div id="customerHistoryPager" class="pager"></div>
 </section>
 </main>
 
-<footer>
-  <div>طراحی و توسعه: نوید رضائی © 2026</div>
-  <div>تماس: 09000900820</div>
-  <div>Incident Tracker</div>
-</footer>
+<footer><div>طراحی و توسعه: نوید رضائی © 2026</div><div>تماس: 09000900820</div></footer>
+<nav class="bottom"><button class="active" data-page="incidents">⌁<span>Incident Network</span></button><button data-page="customer">👥<span>Incident Customer</span></button><button data-page="history">◷<span>History</span></button></nav>
 
-<nav class="bottom">
-  <button class="active" data-page="incidents">Incident</button>
-  <button data-page="tasks">Daily Tasks</button>
-  <button data-page="history">History</button>
-</nav>
+<dialog id="incidentDlg"><form id="incidentForm"><div class="modalhead"><h3 id="incidentTitle">ثبت Incident</h3><button type="button" data-close="incidentDlg">×</button></div><input type="hidden" id="incidentId"><label>شماره Incident<input id="incidentNo" required inputmode="numeric" pattern="[0-9]+" placeholder="001"></label><label>موضوع Incident<input id="incidentSubject" required></label><label>تاریخ ثبت<input id="incidentDate" type="date" required></label><label>پیمانکار<select id="contractor" required><option value="">انتخاب پیمانکار</option><option>شعبه</option><option>فرنیروی شرق</option><option>لاوین اساک</option></select></label><label>تاریخ پیگیری ۱<input id="follow1" type="date"></label><label>وضعیت<select id="incidentStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label><label>درصد پیشرفت<input id="incidentProgress" type="range" min="0" max="100" value="0"><output id="progressValue">0%</output></label><label>توضیحات<textarea id="incidentDescription" rows="4"></textarea></label><div class="actions"><button type="button" data-close="incidentDlg">انصراف</button><button class="primary">ذخیره</button></div></form></dialog>
 
-<dialog id="incidentDlg"><form id="incidentForm">
-<div class="modalhead">
-  <h3 id="incidentTitle">ثبت Incident</h3>
-  <div class="modaltools">
-    <button type="button" data-close="incidentDlg">×</button>
-  </div>
-</div>
+<dialog id="customerDlg"><form id="customerForm"><div class="modalhead"><h3 id="customerTitle">ثبت Incident Customer</h3><button type="button" data-close="customerDlg">×</button></div><input type="hidden" id="customerId"><label>Incident<input id="customerNo" required inputmode="numeric"></label><label>عنوان<input id="customerTitleInput" required></label><label>علت<textarea id="customerCause" rows="4"></textarea></label><label>پیمانکار<select id="customerContractor"><option value="">انتخاب پیمانکار</option><option>شعبه</option><option>سعید اسحقی</option><option>امیر مدیری</option><option>سید مهدی خطیبی</option></select></label><label>اپراتور بررسی کننده<select id="customerOperator"><option value="">انتخاب اپراتور</option><option>نوید رضائی</option><option>پویان پورنوری</option><option>صبا دلگیر</option></select></label><label>وضعیت<select id="customerStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label><div class="actions"><button type="button" data-close="customerDlg">انصراف</button><button class="primary">ذخیره</button></div></form></dialog>
+
+<dialog id="historyIncidentDlg" class="history-detail-dialog"><div class="history-detail"><div class="modalhead"><h3 id="historyDetailTitle">جزئیات Incident</h3><button type="button" data-close="historyIncidentDlg">×</button></div><div id="historyIncidentDetail"></div></div></dialog>
+
+<dialog id="taskDlg"><form id="taskForm"><div class="modalhead"><h3 id="taskTitle">ثبت Task روزانه</h3><button type="button" data-close="taskDlg">×</button></div><input type="hidden" id="taskId"><label>عنوان Task<input id="taskName" required></label><label>زمان<input id="taskTime" type="time" required></label><label>توضیحات<textarea id="taskDescription" rows="4"></textarea></label><label>با چه شخصی<input id="taskPerson"></label><label>در چه تاریخی<input id="taskDate" type="date" required></label><label>وضعیت<select id="taskStatus"><option value="notdone">انجام نشد</option><option value="done">انجام شد</option></select></label><div class="actions"><button type="button" data-close="taskDlg">انصراف</button><button class="primary">ذخیره</button></div></form></dialog>
+
+<dialog id="taskListDlg" class="task-list-dialog"><div class="history-detail"><div class="modalhead"><h3>Daily Tasks</h3><button type="button" data-close="taskListDlg">×</button></div><div class="toolbar"><button id="addTask" class="primary">＋ ثبت Task</button></div><div class="tablewrap"><table><thead><tr><th>عنوان</th><th>زمان</th><th>توضیحات</th><th>شخص</th><th>تاریخ</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="taskRows"></tbody></table></div><div id="emptyT" class="empty">Taskای ثبت نشده است.</div></div></dialog>
+
+<dialog id="mshDlg" class="msh-dialog"><div class="msh-page"><div class="msh-head"><h3>MSH</h3><button type="button" id="closeMsh">×</button></div><div class="msh-search">🔎 <input id="mshSearch" type="search" inputmode="numeric" placeholder="جستجوی شماره زون"></div><button id="mshAdd" class="msh-box" type="button"><strong>MSH<span>+</span></strong></button><div class="msh-contractors"><button type="button" class="msh-contractor lavin" data-msh-contractor="لاوین اساک"><span>لاوین اساک <b id="mshCountLavin">0</b></span></button><button type="button" class="msh-contractor farniru" data-msh-contractor="فرنیرو"><span>فرنیرو <b id="mshCountFarniru">0</b></span></button><button type="button" class="msh-contractor aria" data-msh-contractor="اریا برسام"><span>اریا برسام <b id="mshCountAria">0</b></span></button></div><div id="mshResults" class="msh-results"></div></div></dialog>
+<dialog id="mshFormDlg"><form id="mshForm"><div class="modalhead"><h3>ثبت MSH</h3><button type="button" data-close="mshFormDlg">×</button></div><label>شماره زون<input id="mshZone" inputmode="numeric" required placeholder="04"></label><label>نام پیمانکار<select id="mshContractor" required><option value="">انتخاب پیمانکار</option><option>لاوین اساک</option><option>فرنیرو</option><option>اریا برسام</option></select></label><div class="actions"><button type="button" data-close="mshFormDlg">انصراف</button><button class="primary">ذخیره</button></div></form></dialog>
+
 <input id="xlsxFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
-<input type="hidden" id="incidentId">
-<label>شماره Incident<input id="incidentNo" required inputmode="numeric" pattern="[0-9]+" placeholder="001"></label>
-<label>موضوع Incident<input id="incidentSubject" required></label>
-<label>تاریخ ثبت<input id="incidentDate" type="date" required></label>
-<label>پیمانکار
-  <select id="contractor" required>
-    <option value="">انتخاب پیمانکار</option>
-    <option value="شعبه">شعبه</option>
-    <option value="فرنیروی شرق">فرنیروی شرق</option>
-    
-    <option value="لاوین اساک">لاوین اساک</option>
-  </select>
-</label>
-<label>تاریخ پیگیری ۱<input id="follow1" type="date"></label>
-<label>وضعیت<select id="incidentStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label>
-<label>درصد پیشرفت<input id="incidentProgress" type="number" min="0" max="100" value="0"></label>
-<label>توضیحات<textarea id="incidentDescription" rows="4"></textarea></label>
-<div class="actions"><button type="button" data-close="incidentDlg">انصراف</button><button class="primary">ذخیره</button></div>
-</form></dialog>
-
-<dialog id="taskDlg"><form id="taskForm">
-<div class="modalhead"><h3 id="taskTitle">ثبت Task روزانه</h3><button type="button" data-close="taskDlg">×</button></div>
-<input type="hidden" id="taskId">
-<label>عنوان Task<input id="taskName" required></label>
-<label>زمان<input id="taskTime" type="time" required></label>
-<label>توضیحات<textarea id="taskDescription" rows="4"></textarea></label>
-<label>با چه شخصی<input id="taskPerson" placeholder="نام شخص"></label>
-<label>در چه تاریخی<input id="taskDate" type="date" required></label>
-<label>وضعیت<select id="taskStatus"><option value="notdone">انجام نشد</option><option value="done">انجام شد</option></select></label>
-<div class="actions"><button type="button" data-close="taskDlg">انصراف</button><button class="primary">ذخیره</button></div>
-</form></dialog>
-
-<dialog id="historyIncidentDlg" class="history-detail-dialog">
-  <div class="history-detail">
-    <div class="modalhead"><h3>جزئیات Incident</h3><button type="button" data-close="historyIncidentDlg">×</button></div>
-    <div id="historyIncidentDetail"></div>
-  </div>
-</dialog>
-
-<dialog id="mshDlg" class="msh-dialog">
-  <div class="msh-page">
-    <div class="msh-head"><h3>MSH</h3><button type="button" id="closeMsh">×</button></div>
-    <div class="msh-search">🔎 <input id="mshSearch" type="search" inputmode="numeric" placeholder="جستجوی شماره زون"></div>
-    <button id="mshAdd" class="msh-box" type="button"><strong>MSH<span>+</span></strong></button>
-    <div class="msh-contractors">
-      <button type="button" class="msh-contractor lavin" data-msh-contractor="لاوین اساک"><span>لاوین اساک <b id="mshCountLavin">0</b></span></button>
-      <button type="button" class="msh-contractor farniru" data-msh-contractor="فرنیرو"><span>فرنیرو <b id="mshCountFarniru">0</b></span></button>
-      <button type="button" class="msh-contractor aria" data-msh-contractor="اریا برسام"><span>اریا برسام <b id="mshCountAria">0</b></span></button>
-    </div>
-    <div id="mshResults" class="msh-results"></div>
-  </div>
-</dialog>
-
-<dialog id="mshFormDlg"><form id="mshForm">
-  <div class="modalhead"><h3>ثبت MSH</h3><button type="button" data-close="mshFormDlg">×</button></div>
-  <label>شماره زون<input id="mshZone" inputmode="numeric" required placeholder="04"></label>
-  <label>نام پیمانکار<select id="mshContractor" required><option value="">انتخاب پیمانکار</option><option value="لاوین اساک">لاوین اساک</option><option value="فرنیرو">فرنیرو</option><option value="اریا برسام">اریا برسام</option></select></label>
-  <div class="actions"><button type="button" data-close="mshFormDlg">انصراف</button><button class="primary">ذخیره</button></div>
-</form></dialog>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="app.js"></script>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
-</body>
-</html>
+<input id="customerXlsxFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="app.js"></script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
+</body></html>

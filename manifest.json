@@ -1,10 +1,10 @@
 {
-  "name": "Incident Tracker",
+  "name": "Network and Customer Tracking System",
   "short_name": "Incident Tracker",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0b0b0d",
-  "theme_color": "#0b0b0d",
+  "theme_color": "#111216",
   "lang": "fa",
   "dir": "rtl",
   "icons": []
