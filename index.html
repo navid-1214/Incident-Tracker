@@ -20,10 +20,10 @@
 
 <main>
 <section id="incidents" class="page active">
-  <div class="section-head"><h2>Incident Network</h2></div>
+  <div class="section-head"><h2>Network Incident</h2></div>
   <div class="toolbar">
     <div class="datebar"><button id="prevI">‹</button><button id="todayI">📅 امروز</button><span id="dateI"></span><button id="nextI">›</button></div>
-    <div class="toolbar-actions"><button id="xlsxImportBtn" type="button" class="xlsx-attach" aria-label="پیوست فایل Excel"><span class="attach-icon">📎</span><small>xlsx</small></button><button id="addIncident" class="primary">＋ Incident Network</button></div>
+    <div class="toolbar-actions"><button id="xlsxImportBtn" type="button" class="xlsx-attach" aria-label="پیوست فایل Excel"><span class="attach-icon">📎</span><small>xlsx</small></button><button id="addIncident" class="primary">＋ Network Incident</button></div>
   </div>
   <div class="filters"><button class="filter" data-status="open"><i class="green"></i> باز</button><button class="filter" data-status="progress"><i class="orange"></i> در حال پیگیری</button></div>
   <div class="tablewrap"><table><thead><tr><th>شماره Incident</th><th>موضوع</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>پیگیری ۱</th><th>اتمام کار</th><th>وضعیت</th><th>درصد پیشرفت</th><th>زمان سپری شده</th><th>توضیحات</th><th>عملیات</th></tr></thead><tbody id="incidentRows"></tbody></table></div>
@@ -32,45 +32,45 @@
 </section>
 
 <section id="customer" class="page">
-  <div class="section-head"><h2>Incident Customer</h2></div>
-  <div class="toolbar customer-toolbar"><div class="toolbar-actions"><button id="customerXlsxBtn" type="button" class="xlsx-attach" aria-label="پیوست فایل Excel"><span class="attach-icon">📎</span><small>xlsx</small></button><button id="addCustomer" class="primary">＋ Incident Customer</button></div></div>
+  <div class="section-head"><h2>Customer Incident</h2></div>
+  <div class="toolbar customer-toolbar"><div class="toolbar-actions"><button id="customerXlsxBtn" type="button" class="xlsx-attach" aria-label="پیوست فایل Excel"><span class="attach-icon">📎</span><small>xlsx</small></button><button id="addCustomer" class="primary">＋ Customer Incident</button></div></div>
   <div class="customer-controls">
     <div class="customer-status-filters"><button class="customer-filter active" data-customer-status="all">همه</button><button class="customer-filter" data-customer-status="open"><i class="green"></i> باز</button><button class="customer-filter" data-customer-status="progress"><i class="orange"></i> در حال پیگیری</button></div>
     <label class="customer-sort">مرتب‌سازی <select id="customerSort"><option value="none">بدون مرتب‌سازی</option><option value="contractor">بر اساس پیمانکار</option><option value="operator">بر اساس اپراتور بررسی کننده</option><option value="oac">بر اساس OAC مشترک از عنوان</option></select></label>
   </div>
   <div class="tablewrap"><table class="customer-table"><thead><tr><th>Incident</th><th>عنوان</th><th>علت</th><th>پیمانکار</th><th>اپراتور بررسی کننده</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="customerRows"></tbody></table></div>
-  <div id="emptyCustomer" class="empty">هنوز Incident Customer ثبت نشده است.</div>
-  <div id="customerContractorStats" class="customer-contractor-stats"><button type="button" data-customer-contractor="داده گستر لاوین"><span>داده گستر لاوین</span><b id="customerCountLavin">0</b></button><button type="button" data-customer-contractor="فر نیروی شرق"><span>فر نیروی شرق</span><b id="customerCountEast">0</b></button><button type="button" data-customer-contractor="آریا برسام"><span>آریا برسام</span><b id="customerCountAria">0</b></button><button type="button" class="customer-total active" data-customer-contractor="all"><span>تعداد کل</span><b id="customerCountTotal">0</b></button></div>
-  <div class="table-clear-row"><button id="clearCustomerRows" type="button" class="clear-all-btn" title="حذف کامل ردیف‌های Incident Customer" aria-label="حذف کامل ردیف‌های Incident Customer">🗑️</button></div>
+  <div id="emptyCustomer" class="empty">هنوز Customer Incident ثبت نشده است.</div>
+  <div id="customerContractorStats" class="customer-contractor-stats"><button type="button" data-customer-contractor="سعید اسحقی"><span>سعید اسحقی</span><b id="customerCountLavin">0</b></button><button type="button" data-customer-contractor="سید مهدی خطیبی"><span>سید مهدی خطیبی</span><b id="customerCountEast">0</b></button><button type="button" data-customer-contractor="امیر مدیری"><span>امیر مدیری</span><b id="customerCountAria">0</b></button><button type="button" class="customer-total active" data-customer-contractor="all"><span>کل</span><b id="customerCountTotal">0</b></button></div>
+  <div class="table-clear-row"><button id="clearCustomerRows" type="button" class="clear-all-btn" title="حذف کامل ردیف‌های Customer Incident" aria-label="حذف کامل ردیف‌های Customer Incident">🗑️</button></div>
 </section>
 
 <section id="tasks" class="page">
   <div class="section-head"><h2>Daily Tasks</h2></div>
   <div class="toolbar task-page-toolbar"><button id="addTaskPage" class="primary">＋ Task</button></div>
   <div class="tablewrap task-page-table"><table><thead><tr><th>عنوان</th><th>زمان</th><th>توضیحات</th><th>شخص</th><th>تاریخ</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="taskRowsPage"></tbody></table></div>
-  <div id="emptyTPage" class="empty">Taskای ثبت نشده است.</div>
+  <div id="emptyTPage" class="empty">Task ثبت نشده است.</div>
 </section>
 
 <section id="history" class="page">
   <div class="toolbar"><div class="search">🔎 <input id="historySearch" placeholder="جستجوی History"></div></div>
-  <div class="history-title incident-title"><span></span>Incident History</div>
+  <div class="history-title incident-title"><span></span>Network Incident History</div>
   <div class="tablewrap history-wrap"><table class="history-table"><thead><tr><th>نوع</th><th>شماره Incident</th><th>موضوع</th><th>تاریخ ثبت</th><th>پیمانکار</th><th>درصد پیشرفت</th><th>توضیحات</th><th>پیگیری ۱</th><th>اتمام کار</th></tr></thead><tbody id="historyIncidentRows"></tbody></table></div>
   <div id="emptyHI" class="empty">هنوز Incident اتمام کاری یا حذف‌شده‌ای در History وجود ندارد.</div>
   <div id="networkHistoryPager" class="pager"></div>
 
-  <div class="history-title customer-title"><span></span>Incident Customer History</div>
+  <div class="history-title customer-title"><span></span>Customer Incident History</div>
   <div class="tablewrap history-wrap"><table class="history-table customer-history-table"><thead><tr><th>نوع</th><th>Incident</th><th>عنوان</th><th>علت</th><th>پیمانکار</th><th>اپراتور بررسی کننده</th><th>وضعیت</th></tr></thead><tbody id="customerHistoryRows"></tbody></table></div>
-  <div id="emptyCH" class="empty">هنوز Incident Customer اتمام کاری یا حذف‌شده‌ای در History وجود ندارد.</div>
+  <div id="emptyCH" class="empty">هنوز Customer Incident اتمام کاری یا حذف‌شده‌ای در History وجود ندارد.</div>
   <div id="customerHistoryPager" class="pager"></div>
 </section>
 </main>
 
 <footer><div>طراحی و توسعه: نوید رضائی © 2026</div><div>تماس: 09000900820</div></footer>
-<nav class="bottom"><button class="active" data-page="incidents">⌁<span>Incident Network</span></button><button data-page="customer">👥<span>Incident Customer</span></button><button data-page="history">◷<span>History</span></button></nav>
+<nav class="bottom"><button class="active" data-page="incidents">⌁<span>Network Incident</span></button><button data-page="customer">👥<span>Customer Incident</span></button><button data-page="history">◷<span>History</span></button></nav>
 
 <dialog id="incidentDlg"><form id="incidentForm"><div class="modalhead"><h3 id="incidentTitle">ثبت Incident</h3><button type="button" data-close="incidentDlg">×</button></div><input type="hidden" id="incidentId"><label>شماره Incident<input id="incidentNo" required inputmode="numeric" pattern="[0-9]+" placeholder="001"></label><label>موضوع Incident<input id="incidentSubject" required></label><label>تاریخ ثبت<input id="incidentDate" type="date" required></label><label>پیمانکار<select id="contractor" required><option value="">انتخاب پیمانکار</option><option>شعبه</option><option>فرنیروی شرق</option><option>لاوین اساک</option></select></label><label>تاریخ پیگیری ۱<input id="follow1" type="date"></label><label>وضعیت<select id="incidentStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label><label>درصد پیشرفت<input id="incidentProgress" type="range" min="0" max="100" value="0"><output id="progressValue">0%</output></label><label>توضیحات<textarea id="incidentDescription" rows="4"></textarea></label><div class="actions"><button type="button" data-close="incidentDlg">انصراف</button><button class="primary">ذخیره</button></div></form></dialog>
 
-<dialog id="customerDlg"><form id="customerForm"><div class="modalhead"><h3 id="customerTitle">ثبت Incident Customer</h3><button type="button" data-close="customerDlg">×</button></div><input type="hidden" id="customerId"><label>Incident<input id="customerNo" required inputmode="numeric"></label><label>عنوان<input id="customerTitleInput" required></label><label>علت<textarea id="customerCause" rows="4"></textarea></label><label>پیمانکار<select id="customerContractor"><option value="">انتخاب پیمانکار</option><option>داده گستر لاوین</option><option>فر نیروی شرق</option><option>آریا برسام</option></select></label><label>اپراتور بررسی کننده<select id="customerOperator"><option value="">انتخاب اپراتور</option><option>نوید رضائی</option><option>پویان پورنوری</option><option>صبا دلگیر</option></select></label><label>وضعیت<select id="customerStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label><div class="actions"><button type="button" data-close="customerDlg">انصراف</button><button class="primary">ذخیره</button></div></form></dialog>
+<dialog id="customerDlg"><form id="customerForm"><div class="modalhead"><h3 id="customerTitle">ثبت Customer Incident</h3><button type="button" data-close="customerDlg">×</button></div><input type="hidden" id="customerId"><label>Incident<input id="customerNo" required inputmode="numeric"></label><label>عنوان<input id="customerTitleInput" required></label><label>علت<textarea id="customerCause" rows="4"></textarea></label><label>پیمانکار<select id="customerContractor"><option value="">انتخاب پیمانکار</option><option>سعید اسحقی</option><option>سید مهدی خطیبی</option><option>امیر مدیری</option></select></label><label>اپراتور بررسی کننده<select id="customerOperator"><option value="">انتخاب اپراتور</option><option>نوید رضائی</option><option>پویان پورنوری</option><option>صبا دلگیر</option></select></label><label>وضعیت<select id="customerStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label><div class="actions"><button type="button" data-close="customerDlg">انصراف</button><button class="primary">ذخیره</button></div></form></dialog>
 
 <dialog id="historyIncidentDlg" class="history-detail-dialog"><div class="history-detail"><div class="modalhead"><h3 id="historyDetailTitle">جزئیات Incident</h3><button type="button" data-close="historyIncidentDlg">×</button></div><div id="historyIncidentDetail"></div></div></dialog>
 
