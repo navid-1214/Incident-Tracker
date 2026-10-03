@@ -29,6 +29,18 @@ function deleteIncident(id){if(!confirm("این Incident حذف شود؟"))retur
 $("incidentForm").onsubmit=e=>{e.preventDefault();const id=$("incidentId").value,v={no:normalizeIncidentNumber($("incidentNo").value),subject:$("incidentSubject").value.trim(),reg:$("incidentDate").value,contractor:$("contractor").value,f1:$("follow1").value,status:$("incidentStatus").value,progress:Number($("incidentProgress").value)||0,description:$("incidentDescription").value.trim()};if(id){const old=incidents.find(x=>x.id===id);if(old){let completedAt=old.completedAt;if(v.status==="closed"&&old.status!=="closed")completedAt=new Date().toISOString();if(v.status!=="closed")completedAt="";Object.assign(old,v,{completedAt})}}else incidents.push({id:crypto.randomUUID(),createdAt:new Date().toISOString(),completedAt:v.status==="closed"?new Date().toISOString():"",...v});save();$("incidentDlg").close();renderAll()}
 
 function customerStatusText(s){return incStatus(s)}
+function customerExists(no, excludeId=""){
+  const n=normalizeIncidentNumber(no);
+  return customers.some(c=>String(c.id)!==String(excludeId) && normalizeIncidentNumber(c.no)===n) || customerHistory.some(x=>String(x.item?.id)!==String(excludeId) && normalizeIncidentNumber(x.item?.no)===n);
+}
+async function readXlsx(file){
+  if(typeof XLSX==="undefined") throw new Error("XLSX library not loaded");
+  const data=await file.arrayBuffer();
+  const wb=XLSX.read(data,{type:"array",cellDates:false});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  if(!ws) return [];
+  return XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:false});
+}
 function canonicalCustomerContractor(v){
   const key=normalizeText(v);
   if(!key)return "";
