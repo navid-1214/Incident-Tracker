@@ -68,18 +68,18 @@ function canonicalCustomerContractor(v){
   return key;
 }
 
-function extractOAC(title){const m=String(title||"").match(/\bOAC\s*[-_/#:]?\s*([A-Za-z0-9۰-۹٠-٩_-]+)/i);return m?`OAC ${m[1]}`:""}
+function extractOAC(title){const m=String(title||"").match(/\bOAC\s*[.\-_/#:]?\s*([0-9۰-۹٠-٩]+)/i);return m?Number(String(m[1]).replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))):null}
 function customerSortValue(c){
   if(customerSortMode==="contractor")return canonicalCustomerContractor(c.contractor).toLocaleLowerCase();
   if(customerSortMode==="operator")return normalizeText(c.operator).toLocaleLowerCase();
-  if(customerSortMode==="oac")return (extractOAC(c.title)||"ZZZ").toLocaleLowerCase();
+  if(customerSortMode==="oac")return extractOAC(c.title);
   return "";
 }
 function getCustomerList(){
   let list=customers.filter(x=>x.status!=="closed");
   if(customerStatusFilter!=="all")list=list.filter(x=>x.status===customerStatusFilter);
   if(customerContractorFilter!=="all")list=list.filter(x=>canonicalCustomerContractor(x.contractor)===customerContractorFilter);
-  if(customerSortMode!=="none")list=[...list].sort((a,b)=>customerSortValue(a).localeCompare(customerSortValue(b),"fa"));
+  if(customerSortMode!=="none")list=[...list].sort((a,b)=>{const av=customerSortValue(a),bv=customerSortValue(b);if(customerSortMode==="oac"){const an=av===null?Number.POSITIVE_INFINITY:av,bn=bv===null?Number.POSITIVE_INFINITY:bv;return an-bn}return String(av).localeCompare(String(bv),"fa")});
   return list;
 }
 function renderCustomerContractorStats(){
