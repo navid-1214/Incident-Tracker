@@ -11,7 +11,7 @@ function normalizeText(v){return String(v??"").replace(/\u200c/g," ").replace(/[
 function normalizeIncidentNumber(v){return String(v??"").replace(/\u200c/g,"").replace(/[^0-9]/g,"").replace(/^0+(?=\d)/,"")}
 function incidentNoHtml(v){const n=normalizeIncidentNumber(v)||String(v??"").trim();return `<span class="incident-number"><b>${esc(n)}</b><small>-INC</small></span>`}
 function enforceHistoryLimit(){
-  const MAX_HISTORY=10;
+  const MAX_HISTORY=30;
   const net=[
     ...incidents.filter(i=>i.status==="closed").map(i=>({id:String(i.id),kind:"closed",at:i.completedAt||i.createdAt})),
     ...history.filter(x=>x.type==="incident").map(x=>({id:String(x.id),kind:"deleted",at:x.at}))
@@ -103,7 +103,7 @@ $("customerForm").onsubmit=e=>{e.preventDefault();const id=$("customerId").value
 
 function historyNetworkItems(){const closed=incidents.filter(i=>i.status==="closed").map(i=>({...i,historyType:"completed",historyAt:i.completedAt||i.createdAt}));const deleted=history.filter(x=>x.type==="incident").map(x=>({...x.item,historyType:"deleted",historyAt:x.at}));const seen=new Set();return [...closed,...deleted].filter(i=>{const k=i.id||`${i.no}|${i.createdAt}`;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>new Date(b.historyAt||0)-new Date(a.historyAt||0))}
 function historyCustomerItems(){const closed=customers.filter(c=>c.status==="closed").map(c=>({...c,historyType:"completed",historyAt:c.completedAt||c.createdAt}));const deleted=customerHistory.map(x=>({...x.item,historyType:"deleted",historyAt:x.at}));const seen=new Set();return [...closed,...deleted].filter(c=>{const k=c.id||`${c.no}|${c.createdAt}`;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>new Date(b.historyAt||0)-new Date(a.historyAt||0))}
-function paginate(items,page){const size=3,total=Math.max(1,Math.ceil(items.length/size));const p=Math.min(Math.max(1,page),total);return {rows:items.slice((p-1)*size,p*size),page:p,total}}
+function paginate(items,page){const size=10,total=Math.max(1,Math.ceil(items.length/size));const p=Math.min(Math.max(1,page),total);return {rows:items.slice((p-1)*size,p*size),page:p,total}}
 function pagerHtml(page,total,kind){
   if(total<=1)return"";
   const p=Math.min(Math.max(1,page),total);
@@ -171,4 +171,4 @@ $("xlsxImportBtn").onclick=()=>pickXlsx(importIncidents);$("customerXlsxBtn").on
 document.querySelectorAll(".customer-filter").forEach(b=>b.onclick=()=>{customerStatusFilter=b.dataset.customerStatus;document.querySelectorAll(".customer-filter").forEach(x=>x.classList.toggle("active",x===b));renderCustomers()});
 $("customerSort").onchange=e=>{customerSortMode=e.target.value;renderCustomers()};
 document.querySelectorAll("[data-customer-contractor]").forEach(b=>b.onclick=()=>{customerContractorFilter=b.dataset.customerContractor;renderCustomers()});
-applyTheme(localStorage.getItem("incident-theme")||"dark");renderAll();setInterval(()=>{renderIncidents();},1000);
+applyTheme(localStorage.getItem("incident-theme")||"dark");enforceHistoryLimit();renderAll();setInterval(()=>{renderIncidents();},1000);
