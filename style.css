@@ -25,3 +25,45 @@ body.light{background:#f7f8fa;color:#15171b}body.light header,body.light .bottom
   .toolbar-actions .primary{flex:1!important}
 }
 body.light .xlsx-attach{background:#f0f1f4;color:#222;border-color:#d3d6dc}
+
+/* V16.3 customer filters, contractor summary, task page */
+.customer-controls{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:8px 0;flex-wrap:wrap}
+.customer-status-filters{display:flex;gap:6px;align-items:center}
+.customer-filter{border:1px solid #30333a;background:#1a1c21;color:#ddd;border-radius:9px;padding:7px 10px;font-size:11px;cursor:pointer}
+.customer-filter.active{outline:2px solid #fff}
+.customer-filter i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px}
+.customer-sort{display:flex;align-items:center;gap:5px;margin:0;font-size:10px;color:#aaa;white-space:nowrap}
+.customer-sort select{display:inline-block;width:auto;min-width:180px;margin:0;padding:7px 8px;font-size:10px}
+.customer-contractor-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:7px}
+.customer-contractor-stats button{border:1px solid #292c32;background:#15171b;color:#fff;border-radius:10px;padding:8px 5px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-width:0}
+.customer-contractor-stats button span{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.customer-contractor-stats button b{font-size:17px}
+.customer-contractor-stats button:nth-child(1) span,.customer-contractor-stats button:nth-child(1) b{color:#5bd4ff}
+.customer-contractor-stats button:nth-child(2) span,.customer-contractor-stats button:nth-child(2) b{color:#ffae45}
+.customer-contractor-stats button:nth-child(3) span,.customer-contractor-stats button:nth-child(3) b{color:#b56cff}
+.customer-contractor-stats button:nth-child(4) span,.customer-contractor-stats button:nth-child(4) b{color:#fff}
+.customer-contractor-stats button.active{border-color:#777;box-shadow:inset 0 0 0 1px #777}
+.table-clear-row{display:flex;justify-content:center;margin:7px 0 2px}
+.clear-all-btn{width:38px;height:32px;border-radius:9px;border:1px solid #5b3035;background:#24171a;color:#ff8d98;font-size:16px;cursor:pointer}
+.task-page-toolbar{justify-content:flex-start;margin-bottom:9px}
+.task-page-table{min-width:0}
+.task-page-table table{min-width:700px}
+.task-page-table th,.task-page-table td{font-size:10px}
+.import-toast{position:fixed;z-index:100;right:12px;left:12px;bottom:82px;background:#17191e;color:#fff;border:1px solid #3a3e47;border-radius:11px;padding:10px;text-align:center;font-size:11px;box-shadow:0 8px 30px #0008}
+.import-toast div{color:#ffae45;margin-top:3px}
+body.light .customer-filter{background:#f0f1f4;color:#222;border-color:#d3d6dc}
+body.light .customer-filter.active{outline-color:#111}
+body.light .customer-sort{color:#555}
+body.light .customer-contractor-stats button{background:#fff;border-color:#d9dce2;color:#111}
+body.light .customer-contractor-stats button.active{border-color:#777}
+body.light .clear-all-btn{background:#fff1f2;border-color:#e1aab0;color:#b52d3b}
+body.light .import-toast{background:#fff;color:#111;border-color:#ccc}
+@media(max-width:700px){
+  .customer-controls{align-items:stretch}
+  .customer-status-filters{width:100%}
+  .customer-filter{flex:1}
+  .customer-sort{width:100%;justify-content:space-between}
+  .customer-sort select{flex:1;min-width:0}
+  .customer-contractor-stats{grid-template-columns:repeat(4,1fr)}
+  .customer-contractor-stats button span{font-size:8px}
+}

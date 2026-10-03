@@ -1,6 +1,6 @@
 {
   "name": "incident-tracker-network-customer",
-  "version": "16.1.0",
+  "version": "16.3.0",
   "description": "Network and Customer Tracking System",
   "main": "electron-main.cjs",
   "scripts": {
@@ -14,9 +14,27 @@
   "build": {
     "appId": "com.asiatech.incidenttracker",
     "productName": "Network and Customer Tracking System",
-    "directories": { "output": "dist" },
-    "files": ["index.html", "style.css", "app.js", "manifest.json", "sw.js", "assets/**/*", "electron-main.cjs"],
-    "win": { "target": "nsis", "artifactName": "Incident-Tracker-Network-Customer-Setup-${version}.${ext}" },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "createStartMenuShortcut": true }
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "index.html",
+      "style.css",
+      "app.js",
+      "manifest.json",
+      "sw.js",
+      "assets/**/*",
+      "electron-main.cjs"
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "Incident-Tracker-Network-Customer-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   }
 }
