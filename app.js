@@ -10,7 +10,25 @@ function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 function normalizeText(v){return String(v??"").replace(/\u200c/g," ").replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/\s+/g," ").trim()}
 function normalizeIncidentNumber(v){return String(v??"").replace(/\u200c/g,"").replace(/[^0-9]/g,"").replace(/^0+(?=\d)/,"")}
 function incidentNoHtml(v){const n=normalizeIncidentNumber(v)||String(v??"").trim();return `<span class="incident-number"><b>${esc(n)}</b><small>-INC</small></span>`}
-function save(){localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks));localStorage.setItem(HK,JSON.stringify(history));localStorage.setItem(CK,JSON.stringify(customers));localStorage.setItem(CH,JSON.stringify(customerHistory));localStorage.setItem(MK,JSON.stringify(mshZones))}
+function enforceHistoryLimit(){
+  const MAX_HISTORY=10;
+  const net=[
+    ...incidents.filter(i=>i.status==="closed").map(i=>({id:String(i.id),kind:"closed",at:i.completedAt||i.createdAt})),
+    ...history.filter(x=>x.type==="incident").map(x=>({id:String(x.id),kind:"deleted",at:x.at}))
+  ].sort((a,b)=>new Date(b.at||0)-new Date(a.at||0));
+  const keepNet=new Set(net.slice(0,MAX_HISTORY).map(x=>`${x.kind}:${x.id}`));
+  incidents=incidents.filter(i=>i.status!=="closed" || keepNet.has(`closed:${String(i.id)}`));
+  history=history.filter(x=>x.type!=="incident" || keepNet.has(`deleted:${String(x.id)}`));
+
+  const cus=[
+    ...customers.filter(c=>c.status==="closed").map(c=>({id:String(c.id),kind:"closed",at:c.completedAt||c.createdAt})),
+    ...customerHistory.map(x=>({id:String(x.id),kind:"deleted",at:x.at}))
+  ].sort((a,b)=>new Date(b.at||0)-new Date(a.at||0));
+  const keepCus=new Set(cus.slice(0,MAX_HISTORY).map(x=>`${x.kind}:${x.id}`));
+  customers=customers.filter(c=>c.status!=="closed" || keepCus.has(`closed:${String(c.id)}`));
+  customerHistory=customerHistory.filter(x=>!x || keepCus.has(`deleted:${String(x.id)}`));
+}
+function save(){enforceHistoryLimit();localStorage.setItem(IK,JSON.stringify(incidents));localStorage.setItem(TK,JSON.stringify(tasks));localStorage.setItem(HK,JSON.stringify(history));localStorage.setItem(CK,JSON.stringify(customers));localStorage.setItem(CH,JSON.stringify(customerHistory));localStorage.setItem(MK,JSON.stringify(mshZones))}
 function elapsed(a,b){const end=b?new Date(b):new Date(),n=Math.max(0,Math.floor((end-new Date(a))/1000)),h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":")}
 function incStatus(s){return s==="open"?"باز":s==="progress"?"در حال پیگیری":"اتمام کار"}
 function incDot(s){return s==="open"?"green":s==="progress"?"orange":"blue"}
@@ -85,8 +103,18 @@ $("customerForm").onsubmit=e=>{e.preventDefault();const id=$("customerId").value
 
 function historyNetworkItems(){const closed=incidents.filter(i=>i.status==="closed").map(i=>({...i,historyType:"completed",historyAt:i.completedAt||i.createdAt}));const deleted=history.filter(x=>x.type==="incident").map(x=>({...x.item,historyType:"deleted",historyAt:x.at}));const seen=new Set();return [...closed,...deleted].filter(i=>{const k=i.id||`${i.no}|${i.createdAt}`;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>new Date(b.historyAt||0)-new Date(a.historyAt||0))}
 function historyCustomerItems(){const closed=customers.filter(c=>c.status==="closed").map(c=>({...c,historyType:"completed",historyAt:c.completedAt||c.createdAt}));const deleted=customerHistory.map(x=>({...x.item,historyType:"deleted",historyAt:x.at}));const seen=new Set();return [...closed,...deleted].filter(c=>{const k=c.id||`${c.no}|${c.createdAt}`;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>new Date(b.historyAt||0)-new Date(a.historyAt||0))}
-function paginate(items,page){const size=5,total=Math.max(1,Math.ceil(items.length/size));const p=Math.min(page,total);return {rows:items.slice((p-1)*size,p*size),page:p,total}}
-function pagerHtml(page,total,kind){if(total<=1)return"";let h=`<button type="button" data-pager="${kind}" data-page="${Math.max(1,page-1)}">‹</button>`;for(let i=1;i<=total;i++)h+=`<button type="button" class="${i===page?"active":""}" data-pager="${kind}" data-page="${i}">${i}</button>`;return h+`<button type="button" data-pager="${kind}" data-page="${Math.min(total,page+1)}">›</button>`}
+function paginate(items,page){const size=3,total=Math.max(1,Math.ceil(items.length/size));const p=Math.min(Math.max(1,page),total);return {rows:items.slice((p-1)*size,p*size),page:p,total}}
+function pagerHtml(page,total,kind){
+  if(total<=1)return"";
+  const p=Math.min(Math.max(1,page),total);
+  let start=Math.max(1,Math.min(p-1,total-2)),end=Math.min(total,start+2);
+  if(end-start<2)start=Math.max(1,end-2);
+  let h=`<button type="button" data-pager="${kind}" data-page="${Math.max(1,p-1)}">‹</button>`;
+  if(start>1)h+=`<button type="button" data-pager="${kind}" data-page="1">1</button>${start>2?`<span class="pager-more">…</span>`:""}`;
+  for(let i=start;i<=end;i++)h+=`<button type="button" class="${i===p?"active":""}" data-pager="${kind}" data-page="${i}">${i}</button>`;
+  if(end<total)h+=`${end<total-1?`<span class="pager-more">…</span>`:""}<button type="button" data-pager="${kind}" data-page="${total}">${total}</button>`;
+  return h+`<button type="button" data-pager="${kind}" data-page="${Math.min(total,p+1)}">›</button>`
+}
 function renderHistory(){const q=normalizeText($("historySearch")?.value).toLowerCase();const ni=historyNetworkItems().filter(i=>!q||[i.no,i.subject,i.contractor,i.description].join(" ").toLowerCase().includes(q));const ci=historyCustomerItems().filter(c=>!q||[c.no,c.title,c.cause,c.contractor,c.operator].join(" ").toLowerCase().includes(q));const np=paginate(ni,networkHistoryPage),cp=paginate(ci,customerHistoryPage);networkHistoryPage=np.page;customerHistoryPage=cp.page;$("historyIncidentRows").innerHTML=np.rows.map(i=>`<tr class="history-incident" data-history-id="${esc(i.id)}"><td><span class="history-badge incident-badge">${i.historyType==="deleted"?"حذف شده":"اتمام کار"}</span></td><td>${incidentNoHtml(i.no)}</td><td>${esc(i.subject||"-")}</td><td>${fa(i.reg)}</td><td>${esc(i.contractor||"-")}</td><td>${i.progress??0}%</td><td>${esc(i.description||"-")}</td><td>${fa(i.f1)}</td><td>${completionDateText(i)}</td></tr>`).join("");$("emptyHI").style.display=ni.length?"none":"block";$("networkHistoryPager").innerHTML=pagerHtml(networkHistoryPage,np.total,"network");$("customerHistoryRows").innerHTML=cp.rows.map(c=>`<tr class="customer-history-row" data-customer-history-id="${esc(c.id)}"><td><span class="history-badge incident-badge">${c.historyType==="deleted"?"حذف شده":"اتمام کار"}</span></td><td>${incidentNoHtml(c.no)}</td><td>${esc(c.title||"-")}</td><td>${esc(c.cause||"-")}</td><td>${esc(c.contractor||"-")}</td><td>${esc(c.operator||"-")}</td><td><i class="${incDot(c.status)}"></i>${customerStatusText(c.status)}</td></tr>`).join("");$("emptyCH").style.display=ci.length?"none":"block";$("customerHistoryPager").innerHTML=pagerHtml(customerHistoryPage,cp.total,"customer");document.querySelectorAll("[data-history-id]").forEach(r=>r.onclick=()=>openHistoryIncident(r.dataset.historyId));document.querySelectorAll("[data-customer-history-id]").forEach(r=>r.onclick=()=>openCustomerHistory(r.dataset.customerHistoryId));document.querySelectorAll("[data-pager]").forEach(b=>b.onclick=()=>{if(b.dataset.pager==="network")networkHistoryPage=Number(b.dataset.page);else customerHistoryPage=Number(b.dataset.page);renderHistory()})}
 function openHistoryIncident(id){const i=historyNetworkItems().find(x=>String(x.id)===String(id));if(!i)return;$("historyDetailTitle").textContent="Network Incident — جزئیات History";$("historyIncidentDetail").innerHTML=`<div class="tablewrap"><table class="detail-table"><tbody><tr><th>Incident</th><td>${incidentNoHtml(i.no)}</td></tr><tr><th>موضوع</th><td>${esc(i.subject||"-")}</td></tr><tr><th>تاریخ ثبت</th><td>${fa(i.reg)}</td></tr><tr><th>پیمانکار</th><td>${esc(i.contractor||"-")}</td></tr><tr><th>وضعیت</th><td>${i.historyType==="deleted"?"حذف شده":"اتمام کار"}</td></tr><tr><th>درصد پیشرفت</th><td>${i.progress??0}%</td></tr><tr><th>توضیحات</th><td>${esc(i.description||"-")}</td></tr><tr><th>زمان سپری‌شده</th><td>${elapsed(i.createdAt,i.completedAt||i.historyAt)}</td></tr></tbody></table></div>`;$("historyIncidentDlg").showModal()}
 function openCustomerHistory(id){const c=historyCustomerItems().find(x=>String(x.id)===String(id));if(!c)return;$("historyDetailTitle").textContent="Customer Incident — جزئیات History";$("historyIncidentDetail").innerHTML=`<div class="tablewrap"><table class="detail-table"><tbody><tr><th>Incident</th><td>${incidentNoHtml(c.no)}</td></tr><tr><th>عنوان</th><td>${esc(c.title||"-")}</td></tr><tr><th>علت</th><td>${esc(c.cause||"-")}</td></tr><tr><th>پیمانکار</th><td>${esc(c.contractor||"-")}</td></tr><tr><th>اپراتور بررسی کننده</th><td>${esc(c.operator||"-")}</td></tr><tr><th>وضعیت</th><td>${c.historyType==="deleted"?"حذف شده":customerStatusText(c.status)}</td></tr><tr><th>زمان ثبت</th><td>${c.createdAt?new Date(c.createdAt).toLocaleString("fa-IR"):"-"}</td></tr></tbody></table></div>`;$("historyIncidentDlg").showModal()}
