@@ -150,10 +150,22 @@ function showImportToast(msg,dups){const old=$("importToast");if(old)old.remove(
 
 function applyTheme(mode){const light=mode==="light";document.body.classList.toggle("light",light);$("themeIcon").textContent=light?"☀️":"🌙";$("themeText").textContent=light?"روز":"شب";localStorage.setItem("incident-theme",light?"light":"dark")}
 function toggleTheme(){applyTheme(document.body.classList.contains("light")?"dark":"light")}
+
+const CHAT_KEY="incident-tracker-v1-group-chat";
+const CHAT_READ_KEY="incident-tracker-v1-group-chat-read";
+let chatMessages=JSON.parse(localStorage.getItem(CHAT_KEY)||"[]");
+let chatReadAt=Number(localStorage.getItem(CHAT_READ_KEY)||0);
+function saveChat(){localStorage.setItem(CHAT_KEY,JSON.stringify(chatMessages));localStorage.setItem(CHAT_READ_KEY,String(chatReadAt));}
+function chatUnreadCount(){return chatMessages.filter(m=>Number(m.ts)>chatReadAt).length;}
+function renderChatBadge(){const n=chatUnreadCount(),b=$("chatUnreadBadge");if(!b)return;b.hidden=n===0;b.textContent=n>99?"99+":String(n);if($("chatUnreadText"))$("chatUnreadText").textContent=n?`${n} پیام خوانده‌نشده`:`همه پیام‌ها خوانده شده‌اند`;}
+function renderChat(){const box=$("chatMessages");if(!box)return;box.innerHTML=chatMessages.length?chatMessages.map(m=>`<div class="chat-message ${Number(m.ts)>chatReadAt?"unread":""}"><small>${esc(m.name||"عضو")} · ${new Date(m.ts).toLocaleString("fa-IR")}</small><div>${esc(m.text)}</div></div>`).join(""): '<div class="empty">هنوز پیامی در گروه ثبت نشده است.</div>';renderChatBadge();}
+function openChat(){switchPage("chat");renderChat();if(chatMessages.length){chatReadAt=Math.max(chatReadAt,...chatMessages.map(m=>Number(m.ts)||0));saveChat();renderChat();}}
+
 function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===p));document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===p));if(p==="history")renderHistory();if(p==="customer")renderCustomers();if(p==="tasks")renderTasks()}
 function renderAll(){renderIncidents();renderCustomers();renderHistory();renderTasks();renderMsh()}
 
 $("incidentProgress").oninput=()=>$("progressValue").value=$("incidentProgress").value+"%";
+$("chatLauncher").onclick=openChat;$("chatForm").onsubmit=e=>{e.preventDefault();const text=normalizeText($("chatInput").value);if(!text)return;chatMessages.push({id:crypto.randomUUID(),ts:Date.now(),name:"عضو",text});$("chatInput").value="";saveChat();renderChat();};
 $("addIncident").onclick=openIncident;$("addCustomer").onclick=openCustomer;$("taskLauncher").onclick=()=>switchPage("tasks");$("addTaskPage").onclick=openTask;$("themeToggle").onclick=toggleTheme;$("clearCustomerRows").onclick=clearAllCustomerRows;
 $("mshLauncher").onclick=openMsh;$("closeMsh").onclick=()=>$("mshDlg").close();$("mshAdd").onclick=()=>{$("mshForm").reset();$("mshFormDlg").showModal()};$("mshSearch").oninput=renderMsh;
 document.querySelectorAll("[data-msh-contractor]").forEach(b=>b.onclick=()=>{mshFilter=b.dataset.mshContractor;document.querySelectorAll("[data-msh-contractor]").forEach(x=>x.classList.toggle("active",x===b));renderMsh()});
@@ -171,4 +183,4 @@ $("xlsxImportBtn").onclick=()=>pickXlsx(importIncidents);$("customerXlsxBtn").on
 document.querySelectorAll(".customer-filter").forEach(b=>b.onclick=()=>{customerStatusFilter=b.dataset.customerStatus;document.querySelectorAll(".customer-filter").forEach(x=>x.classList.toggle("active",x===b));renderCustomers()});
 $("customerSort").onchange=e=>{customerSortMode=e.target.value;renderCustomers()};
 document.querySelectorAll("[data-customer-contractor]").forEach(b=>b.onclick=()=>{customerContractorFilter=b.dataset.customerContractor;renderCustomers()});
-applyTheme(localStorage.getItem("incident-theme")||"dark");enforceHistoryLimit();renderAll();setInterval(()=>{renderIncidents();},1000);
+applyTheme(localStorage.getItem("incident-theme")||"dark");enforceHistoryLimit();renderAll();renderChatBadge();setInterval(()=>{renderIncidents();},1000);

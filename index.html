@@ -14,6 +14,7 @@
     <div class="header-title">Network and Customer<br><span>Tracking System</span></div>
     <button id="themeToggle" class="theme-toggle" type="button" aria-label="تغییر تم"><span id="themeIcon">☀️</span><span id="themeText">روز</span></button>
     <button id="taskLauncher" class="circle-launcher task-launcher" type="button" aria-label="Task"><span>✓</span><small>Task</small></button>
+    <button id="chatLauncher" class="circle-launcher chat-launcher" type="button" aria-label="Chat"><span>💬</span><small>Chat</small><b id="chatUnreadBadge" class="chat-unread-badge" hidden>0</b></button>
     <button id="mshLauncher" class="circle-launcher logo-launcher" type="button" aria-label="ZON"><strong>ZON</strong></button>
   </div>
 </header>
@@ -43,6 +44,8 @@
   <div id="customerContractorStats" class="customer-contractor-stats"><button type="button" data-customer-contractor="سعید اسحقی"><span>سعید اسحقی</span><b id="customerCountLavin">0</b></button><button type="button" data-customer-contractor="سید مهدی خطیبی"><span>سید مهدی خطیبی</span><b id="customerCountEast">0</b></button><button type="button" data-customer-contractor="امیر مدیری"><span>امیر مدیری</span><b id="customerCountAria">0</b></button><button type="button" class="customer-total active" data-customer-contractor="all"><span>کل</span><b id="customerCountTotal">0</b></button></div>
   <div class="table-clear-row"><button id="clearCustomerRows" type="button" class="clear-all-btn" title="حذف کامل ردیف‌های Customer Incident" aria-label="حذف کامل ردیف‌های Customer Incident">🗑️</button></div>
 </section>
+
+<section id="chat" class="page"><div class="section-head"><h2>Group Chat</h2><p id="chatUnreadText">پیام‌های خوانده‌نشده</p></div><div id="chatMessages" class="chat-messages"></div><form id="chatForm" class="chat-form"><input id="chatInput" placeholder="پیام خود را بنویسید..." autocomplete="off"><button class="primary" type="submit">ارسال</button></form></section>
 
 <section id="tasks" class="page">
   <div class="section-head"><h2>Daily Tasks</h2></div>
