@@ -174,47 +174,56 @@ document.querySelectorAll("[data-customer-contractor]").forEach(b=>b.onclick=()=
 applyTheme(localStorage.getItem("incident-theme")||"dark");enforceHistoryLimit();renderAll();setInterval(()=>{renderIncidents();},1000);
 
 
-// Account profile (local UI; shared account backend can be connected later)
+// Account registration + local group chat
 (()=>{
-  const dlg=$("accountDlg"), form=$("accountForm"), name=$("accountName");
-  if(!dlg||!form) return;
-  const saved=localStorage.getItem("incident-tracker-account-profile");
-  if(saved){try{const p=JSON.parse(saved); if(p.name) name.value=p.name;}catch(e){}}
-  $("accountLauncher").onclick=()=>dlg.showModal();
-  form.onsubmit=e=>{e.preventDefault();localStorage.setItem("incident-tracker-account-profile",JSON.stringify({name:name.value.trim(),phone:"09000900820",role:"مالک / کارشناس فنی"}));dlg.close();};
-})();
+  const profileKey="incident-tracker-account-profile";
+  const reg=$("registerDlg"), regForm=$("registerForm"), acc=$("accountDlg"), accForm=$("accountForm");
+  const chat=$("chatDlg"), chatForm=$("chatForm"), chatText=$("chatText"), chatFile=$("chatFile"), chatMessages=$("chatMessages"), badge=$("chatBadge");
+  let profile=null;
+  try{profile=JSON.parse(localStorage.getItem(profileKey)||"null")}catch(e){profile=null}
+  const roleText=r=>r==="manager"?"مدیر":"کارشناس فنی";
+  const escChat=v=>esc(String(v??""));
+  function saveProfile(){localStorage.setItem(profileKey,JSON.stringify(profile))}
+  function openRegister(){reg.showModal()}
+  function refreshAccount(){
+    if(!profile){openRegister();return}
+    const parts=[profile.firstName,profile.lastName].filter(Boolean);
+    $("accountName").value=parts.join(" "); $("accountPhone").value=profile.phone||""; $("accountRole").value=profile.role||"expert";
+  }
+  regForm.onsubmit=e=>{
+    e.preventDefault();
+    const phone=$("registerPhone").value.trim().replace(/\s+/g,"");
+    if(!/^09\d{9}$/.test(phone)){alert("شماره همراه را به‌صورت 09xxxxxxxxx وارد کنید.");return}
+    profile={firstName:$("registerFirstName").value.trim(),lastName:$("registerLastName").value.trim(),phone,role:$("registerRole").value,createdAt:new Date().toISOString()};
+    saveProfile(); reg.close(); refreshAccount();
+  };
+  $("accountLauncher").onclick=()=>{refreshAccount();acc.showModal()};
+  accForm.onsubmit=e=>{e.preventDefault();const full=$("accountName").value.trim().split(/\s+/);profile.firstName=full.shift()||"";profile.lastName=full.join(" ");profile.phone=$("accountPhone").value.trim();profile.role=$("accountRole").value;saveProfile();acc.close()};
 
-/* Account OTP onboarding + group chat UI. Real SMS delivery is delegated to /api/auth; configure that endpoint for production. */
-(()=>{
-  const login=$('loginDlg'), phoneForm=$('loginPhoneForm'), otpForm=$('loginOtpForm'), profileForm=$('profileForm');
-  const phoneEl=$('loginPhone'), otpEl=$('loginOtp');
-  const phoneErr=$('loginError'), otpErr=$('otpError'), profileErr=$('profileError');
-  let pendingPhone='';
-  const getSession=()=>{try{return JSON.parse(localStorage.getItem('incident-auth-session')||'null')}catch{return null}};
-  const setSession=s=>localStorage.setItem('incident-auth-session',JSON.stringify(s));
-  async function requestOtp(phone){
-    try{const r=await fetch('/api/auth/request-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone})});if(!r.ok)throw new Error('otp');return await r.json()}catch(e){throw new Error('SMS_SERVICE_NOT_CONFIGURED')}
+  const chatKey="incident-tracker-group-chat";
+  const unreadKey="incident-tracker-chat-unread";
+  function getMessages(){try{return JSON.parse(localStorage.getItem(chatKey)||"[]")}catch(e){return[]}}
+  function setMessages(a){localStorage.setItem(chatKey,JSON.stringify(a))}
+  function getUnread(){try{return Number(localStorage.getItem(unreadKey)||0)}catch(e){return 0}}
+  function setUnread(n){localStorage.setItem(unreadKey,String(Math.max(0,n))); badge.hidden=n<=0; badge.textContent=String(Math.max(0,n))}
+  function renderChat(){
+    const msgs=getMessages();
+    chatMessages.innerHTML=msgs.length?msgs.map(m=>`<div class="chat-msg ${m.phone===profile?.phone?'mine':''}"><div class="meta">${escChat(m.name)} · ${escChat(m.time)}</div>${m.file?`<div class="chat-file">📎 <span>${escChat(m.file)}</span></div>`:``}${m.text?`<div>${escChat(m.text)}</div>`:``}</div>`).join(""):"<div class=\"empty\">هنوز پیامی ارسال نشده است.</div>";
+    chatMessages.scrollTop=chatMessages.scrollHeight;
   }
-  async function verifyOtp(phone,code){
-    const r=await fetch('/api/auth/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,code})});if(!r.ok)throw new Error('invalid');return await r.json();
+  function openChat(){
+    if(!profile){openRegister();return}
+    renderChat();chat.showModal();setUnread(0);
   }
-  function openLogin(){if(login&&typeof login.showModal==='function'&&!login.open)login.showModal()}
-  function updateAccountButton(){const s=getSession();const a=$('accountLauncher');if(!a)return;if(s?.profile?.name){a.querySelector('small').textContent='Account';a.title=s.profile.name}}
-  if(login){
-    login.addEventListener('cancel',e=>{if(!getSession())e.preventDefault()});
-    phoneForm.onsubmit=async e=>{e.preventDefault();phoneErr.textContent='';const phone=phoneEl.value.trim();if(!/^09\d{9}$/.test(phone)){phoneErr.textContent='شماره موبایل معتبر نیست.';return}pendingPhone=phone;try{await requestOtp(phone);phoneForm.hidden=true;otpForm.hidden=false;otpEl.focus()}catch(err){phoneErr.textContent='ارسال کد انجام نشد. اتصال سرویس پیامک هنوز تنظیم نشده است.'}};
-    $('loginBack').onclick=()=>{otpForm.hidden=true;phoneForm.hidden=false;otpErr.textContent=''};
-    otpForm.onsubmit=async e=>{e.preventDefault();otpErr.textContent='';const code=otpEl.value.trim();if(!/^\d{6}$/.test(code)){otpErr.textContent='کد ۶ رقمی را وارد کنید.';return}try{const data=await verifyOtp(pendingPhone,code);if(data.profile){setSession({phone:pendingPhone,profile:data.profile});login.close();updateAccountButton();}else{phoneForm.hidden=true;otpForm.hidden=true;profileForm.hidden=false;}}catch(err){otpErr.textContent='کد واردشده صحیح نیست یا منقضی شده است.'}};
-    profileForm.onsubmit=async e=>{e.preventDefault();profileErr.textContent='';const name=$('registerName').value.trim(),role=$('registerRole').value;if(!name){profileErr.textContent='نام و نام خانوادگی را وارد کنید.';return}try{const r=await fetch('/api/auth/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:pendingPhone,name,role})});if(!r.ok)throw new Error('profile');const data=await r.json();setSession({phone:pendingPhone,profile:data.profile||{name,role}});login.close();updateAccountButton()}catch(err){profileErr.textContent='ثبت‌نام انجام نشد. اتصال سرور احراز هویت هنوز تنظیم نشده است.'}};
-  }
-  const session=getSession();if(!session)openLogin();else updateAccountButton();
-  const oldAccount=$('accountLauncher');if(oldAccount)oldAccount.onclick=()=>{const s=getSession();if(s?.profile){$('accountName').value=s.profile.name||'';$('accountPhone').value=s.phone||'';$('accountRole').value=s.profile.role||'';$('accountDlg').showModal()}else openLogin()};
-})();
-
-(()=>{
-  const btn=$('chatLauncher'),dlg=$('chatDlg'),list=$('chatMessages'),input=$('chatInput'),send=$('chatSend');if(!btn||!dlg)return;
-  let messages=JSON.parse(localStorage.getItem('incident-chat-demo')||'[]');
-  function render(){list.innerHTML=messages.map(m=>`<div class="chat-msg"><b>${esc(m.name||'کاربر')}</b><div>${esc(m.text)}</div></div>`).join('');list.scrollTop=list.scrollHeight}
-  btn.onclick=()=>{render();dlg.showModal();localStorage.setItem('incident-chat-unread','0');$('chatBadge').hidden=true};
-  send.onclick=()=>{const text=input.value.trim();if(!text)return;const s=(()=>{try{return JSON.parse(localStorage.getItem('incident-auth-session')||'null')}catch{return null}})();messages.push({id:crypto.randomUUID(),name:s?.profile?.name||'کاربر',text,at:new Date().toISOString()});localStorage.setItem('incident-chat-demo',JSON.stringify(messages));input.value='';render()};
+  $("chatLauncher").onclick=openChat;
+  $("chatAttach").onclick=()=>chatFile.click();
+  chatFile.onchange=()=>{if(chatFile.files?.[0]){chatText.placeholder="فایل آماده ارسال است: "+chatFile.files[0].name}};
+  chatForm.onsubmit=e=>{
+    e.preventDefault();
+    const file=chatFile.files?.[0], text=chatText.value.trim();
+    if(!text&&!file)return;
+    const msgs=getMessages(); msgs.push({id:crypto.randomUUID(),phone:profile.phone,name:[profile.firstName,profile.lastName].filter(Boolean).join(" "),text,file:file?.name||"",time:new Date().toLocaleString("fa-IR")});setMessages(msgs);chatText.value="";chatFile.value="";chatText.placeholder="پیام خود را بنویسید...";renderChat();
+  };
+  setUnread(getUnread());
+  if(!profile) setTimeout(openRegister,120);
 })();
