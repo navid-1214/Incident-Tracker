@@ -13,6 +13,7 @@
   <div class="brand-row">
     <div class="header-title">Network and Customer<br><span>Tracking System</span></div>
     <button id="themeToggle" class="theme-toggle" type="button" aria-label="تغییر تم"><span id="themeIcon">☀️</span><span id="themeText">روز</span></button>
+    <button id="chatLauncher" class="circle-launcher chat-launcher" type="button" aria-label="چت گروهی"><span>💬</span><small>Chat</small><b id="chatBadge" class="chat-badge" hidden>0</b></button>
     <button id="accountLauncher" class="account-launcher" type="button" aria-label="حساب کاربری"><span>👤</span><small>Account</small></button>
     <button id="taskLauncher" class="circle-launcher task-launcher" type="button" aria-label="Task"><span>✓</span><small>Task</small></button>
     <button id="mshLauncher" class="circle-launcher logo-launcher" type="button" aria-label="ZON"><strong>ZON</strong></button>
@@ -65,6 +66,10 @@
   <div id="customerHistoryPager" class="pager"></div>
 </section>
 </main>
+
+<dialog id="chatDlg" class="chat-dialog"><div class="chat-page"><div class="modalhead"><h3>چت گروهی</h3><button type="button" data-close="chatDlg">×</button></div><div class="chat-note">چت گروهی اعضای فنی</div><div id="chatMessages" class="chat-messages"></div><div class="chat-compose"><input id="chatInput" placeholder="پیام خود را بنویسید..." autocomplete="off"><button id="chatSend" class="primary" type="button">ارسال</button></div></div></dialog>
+
+<dialog id="loginDlg" class="login-dialog"><form id="loginPhoneForm"><div class="login-brand">Network and Customer<br><span>Tracking System</span></div><h2>ورود به حساب</h2><p>شماره موبایل خود را وارد کنید تا کد تأیید ارسال شود.</p><label>شماره موبایل<input id="loginPhone" inputmode="tel" autocomplete="tel" placeholder="09xxxxxxxxx" maxlength="11" required></label><button class="primary" type="submit">ارسال کد تأیید</button><div id="loginError" class="login-error"></div></form><form id="loginOtpForm" hidden><div class="login-brand">Network and Customer<br><span>Tracking System</span></div><h2>تأیید شماره</h2><p>کد ارسال‌شده را وارد کنید.</p><label>کد تأیید<input id="loginOtp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></label><button class="primary" type="submit">تأیید و ادامه</button><button id="loginBack" class="secondary" type="button">تغییر شماره</button><div id="otpError" class="login-error"></div></form><form id="profileForm" hidden><div class="login-brand">Network and Customer<br><span>Tracking System</span></div><h2>تکمیل ثبت‌نام</h2><p>برای ادامه نام، نام خانوادگی و سمت خود را وارد کنید.</p><label>نام و نام خانوادگی<input id="registerName" required placeholder="مثلاً نوید رضائی"></label><label>سمت<select id="registerRole" required><option value="کارشناس فنی">کارشناس فنی</option><option value="مدیر">مدیر</option></select></label><button class="primary" type="submit">ثبت‌نام و ورود به اپ</button><div id="profileError" class="login-error"></div></form></dialog>
 
 <footer><div>طراحی و توسعه: نوید رضائی © 2026</div><div>تماس: 09000900820</div></footer>
 <nav class="bottom"><button class="active" data-page="incidents">⌁<span>Network Incident</span></button><button data-page="customer">👥<span>Customer Incident</span></button><button data-page="history">◷<span>History</span></button></nav>

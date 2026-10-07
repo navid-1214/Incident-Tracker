@@ -183,3 +183,38 @@ applyTheme(localStorage.getItem("incident-theme")||"dark");enforceHistoryLimit()
   $("accountLauncher").onclick=()=>dlg.showModal();
   form.onsubmit=e=>{e.preventDefault();localStorage.setItem("incident-tracker-account-profile",JSON.stringify({name:name.value.trim(),phone:"09000900820",role:"مالک / کارشناس فنی"}));dlg.close();};
 })();
+
+/* Account OTP onboarding + group chat UI. Real SMS delivery is delegated to /api/auth; configure that endpoint for production. */
+(()=>{
+  const login=$('loginDlg'), phoneForm=$('loginPhoneForm'), otpForm=$('loginOtpForm'), profileForm=$('profileForm');
+  const phoneEl=$('loginPhone'), otpEl=$('loginOtp');
+  const phoneErr=$('loginError'), otpErr=$('otpError'), profileErr=$('profileError');
+  let pendingPhone='';
+  const getSession=()=>{try{return JSON.parse(localStorage.getItem('incident-auth-session')||'null')}catch{return null}};
+  const setSession=s=>localStorage.setItem('incident-auth-session',JSON.stringify(s));
+  async function requestOtp(phone){
+    try{const r=await fetch('/api/auth/request-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone})});if(!r.ok)throw new Error('otp');return await r.json()}catch(e){throw new Error('SMS_SERVICE_NOT_CONFIGURED')}
+  }
+  async function verifyOtp(phone,code){
+    const r=await fetch('/api/auth/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,code})});if(!r.ok)throw new Error('invalid');return await r.json();
+  }
+  function openLogin(){if(login&&typeof login.showModal==='function'&&!login.open)login.showModal()}
+  function updateAccountButton(){const s=getSession();const a=$('accountLauncher');if(!a)return;if(s?.profile?.name){a.querySelector('small').textContent='Account';a.title=s.profile.name}}
+  if(login){
+    login.addEventListener('cancel',e=>{if(!getSession())e.preventDefault()});
+    phoneForm.onsubmit=async e=>{e.preventDefault();phoneErr.textContent='';const phone=phoneEl.value.trim();if(!/^09\d{9}$/.test(phone)){phoneErr.textContent='شماره موبایل معتبر نیست.';return}pendingPhone=phone;try{await requestOtp(phone);phoneForm.hidden=true;otpForm.hidden=false;otpEl.focus()}catch(err){phoneErr.textContent='ارسال کد انجام نشد. اتصال سرویس پیامک هنوز تنظیم نشده است.'}};
+    $('loginBack').onclick=()=>{otpForm.hidden=true;phoneForm.hidden=false;otpErr.textContent=''};
+    otpForm.onsubmit=async e=>{e.preventDefault();otpErr.textContent='';const code=otpEl.value.trim();if(!/^\d{6}$/.test(code)){otpErr.textContent='کد ۶ رقمی را وارد کنید.';return}try{const data=await verifyOtp(pendingPhone,code);if(data.profile){setSession({phone:pendingPhone,profile:data.profile});login.close();updateAccountButton();}else{phoneForm.hidden=true;otpForm.hidden=true;profileForm.hidden=false;}}catch(err){otpErr.textContent='کد واردشده صحیح نیست یا منقضی شده است.'}};
+    profileForm.onsubmit=async e=>{e.preventDefault();profileErr.textContent='';const name=$('registerName').value.trim(),role=$('registerRole').value;if(!name){profileErr.textContent='نام و نام خانوادگی را وارد کنید.';return}try{const r=await fetch('/api/auth/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:pendingPhone,name,role})});if(!r.ok)throw new Error('profile');const data=await r.json();setSession({phone:pendingPhone,profile:data.profile||{name,role}});login.close();updateAccountButton()}catch(err){profileErr.textContent='ثبت‌نام انجام نشد. اتصال سرور احراز هویت هنوز تنظیم نشده است.'}};
+  }
+  const session=getSession();if(!session)openLogin();else updateAccountButton();
+  const oldAccount=$('accountLauncher');if(oldAccount)oldAccount.onclick=()=>{const s=getSession();if(s?.profile){$('accountName').value=s.profile.name||'';$('accountPhone').value=s.phone||'';$('accountRole').value=s.profile.role||'';$('accountDlg').showModal()}else openLogin()};
+})();
+
+(()=>{
+  const btn=$('chatLauncher'),dlg=$('chatDlg'),list=$('chatMessages'),input=$('chatInput'),send=$('chatSend');if(!btn||!dlg)return;
+  let messages=JSON.parse(localStorage.getItem('incident-chat-demo')||'[]');
+  function render(){list.innerHTML=messages.map(m=>`<div class="chat-msg"><b>${esc(m.name||'کاربر')}</b><div>${esc(m.text)}</div></div>`).join('');list.scrollTop=list.scrollHeight}
+  btn.onclick=()=>{render();dlg.showModal();localStorage.setItem('incident-chat-unread','0');$('chatBadge').hidden=true};
+  send.onclick=()=>{const text=input.value.trim();if(!text)return;const s=(()=>{try{return JSON.parse(localStorage.getItem('incident-auth-session')||'null')}catch{return null}})();messages.push({id:crypto.randomUUID(),name:s?.profile?.name||'کاربر',text,at:new Date().toISOString()});localStorage.setItem('incident-chat-demo',JSON.stringify(messages));input.value='';render()};
+})();
