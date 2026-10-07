@@ -73,4 +73,9 @@ body.light .import-toast{background:#fff;color:#111;border-color:#ccc}
 /* History pagination: compact 3-page window */
 .pager-more{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:32px;color:#777;font-size:11px;}
 
-.chat-launcher{position:absolute;right:114px;top:3px;z-index:2;flex-direction:column;gap:0}.chat-launcher span{font-size:17px;line-height:18px}.chat-launcher small{font-size:8px}.chat-unread-badge{position:absolute;top:-3px;right:-3px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:#e53935;color:#fff;font-size:10px;line-height:19px;text-align:center;border:2px solid #111216}.chat-messages{min-height:280px;max-height:58vh;overflow:auto;border:1px solid #292c32;border-radius:12px;background:#101114;padding:10px}.chat-message{margin:7px 0;padding:8px 10px;border:1px solid #292c32;border-radius:10px;background:#17191e}.chat-message.unread{border-color:#777}.chat-message small{display:block;color:#888;font-size:9px;margin-bottom:3px}.chat-form{display:flex;gap:7px;padding:10px 0}.chat-form input{margin:0;flex:1}.chat-form button{min-width:72px}@media(max-width:700px){.chat-launcher{right:105px}.chat-unread-badge{top:-4px;right:-4px}}
+/* Account launcher */
+.account-launcher{position:absolute;left:78px;top:3px;z-index:2;width:48px;height:48px;border-radius:50%;border:1px solid #343841;background:#1a1c21;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer}
+.account-launcher span{font-size:18px;line-height:18px}.account-launcher small{font-size:7px;line-height:10px}
+.account-dialog{width:min(420px,calc(100% - 22px))}.account-avatar{text-align:center;font-size:38px;margin:2px 0 8px}
+body.light .account-launcher{background:#fff;color:#111;border-color:#d3d6dc}
+@media(max-width:700px){.account-launcher{left:69px;top:3px;width:43px;height:43px;flex-basis:43px}.account-launcher span{font-size:16px}.account-launcher small{font-size:6px}}

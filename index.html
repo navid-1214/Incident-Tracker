@@ -13,8 +13,8 @@
   <div class="brand-row">
     <div class="header-title">Network and Customer<br><span>Tracking System</span></div>
     <button id="themeToggle" class="theme-toggle" type="button" aria-label="تغییر تم"><span id="themeIcon">☀️</span><span id="themeText">روز</span></button>
+    <button id="accountLauncher" class="account-launcher" type="button" aria-label="حساب کاربری"><span>👤</span><small>Account</small></button>
     <button id="taskLauncher" class="circle-launcher task-launcher" type="button" aria-label="Task"><span>✓</span><small>Task</small></button>
-    <button id="chatLauncher" class="circle-launcher chat-launcher" type="button" aria-label="Chat"><span>💬</span><small>Chat</small><b id="chatUnreadBadge" class="chat-unread-badge" hidden>0</b></button>
     <button id="mshLauncher" class="circle-launcher logo-launcher" type="button" aria-label="ZON"><strong>ZON</strong></button>
   </div>
 </header>
@@ -45,8 +45,6 @@
   <div class="table-clear-row"><button id="clearCustomerRows" type="button" class="clear-all-btn" title="حذف کامل ردیف‌های Customer Incident" aria-label="حذف کامل ردیف‌های Customer Incident">🗑️</button></div>
 </section>
 
-<section id="chat" class="page"><div class="section-head"><h2>Group Chat</h2><p id="chatUnreadText">پیام‌های خوانده‌نشده</p></div><div id="chatMessages" class="chat-messages"></div><form id="chatForm" class="chat-form"><input id="chatInput" placeholder="پیام خود را بنویسید..." autocomplete="off"><button class="primary" type="submit">ارسال</button></form></section>
-
 <section id="tasks" class="page">
   <div class="section-head"><h2>Daily Tasks</h2></div>
   <div class="toolbar task-page-toolbar"><button id="addTaskPage" class="primary">＋ Task</button></div>
@@ -70,6 +68,8 @@
 
 <footer><div>طراحی و توسعه: نوید رضائی © 2026</div><div>تماس: 09000900820</div></footer>
 <nav class="bottom"><button class="active" data-page="incidents">⌁<span>Network Incident</span></button><button data-page="customer">👥<span>Customer Incident</span></button><button data-page="history">◷<span>History</span></button></nav>
+
+<dialog id="accountDlg" class="account-dialog"><form id="accountForm"><div class="modalhead"><h3>حساب کاربری</h3><button type="button" data-close="accountDlg">×</button></div><div class="account-avatar">👤</div><label>نام و نام خانوادگی<input id="accountName" required placeholder="نام و نام خانوادگی"></label><label>شماره موبایل<input id="accountPhone" inputmode="tel" value="09000900820" readonly></label><label>سطح دسترسی<input id="accountRole" value="مالک / کارشناس فنی" readonly></label><div class="actions"><button type="button" data-close="accountDlg">انصراف</button><button class="primary">ذخیره</button></div></form></dialog>
 
 <dialog id="incidentDlg"><form id="incidentForm"><div class="modalhead"><h3 id="incidentTitle">ثبت Incident</h3><button type="button" data-close="incidentDlg">×</button></div><input type="hidden" id="incidentId"><label>شماره Incident<input id="incidentNo" required inputmode="numeric" pattern="[0-9]+" placeholder="001"></label><label>موضوع Incident<input id="incidentSubject" required></label><label>تاریخ ثبت<input id="incidentDate" type="date" required></label><label>پیمانکار<select id="contractor" required><option value="">انتخاب پیمانکار</option><option>شعبه</option><option>فرنیروی شرق</option><option>لاوین اساک</option></select></label><label>تاریخ پیگیری ۱<input id="follow1" type="date"></label><label>وضعیت<select id="incidentStatus"><option value="open">باز</option><option value="progress">در حال پیگیری</option><option value="closed">اتمام کار</option></select></label><label>درصد پیشرفت<input id="incidentProgress" type="range" min="0" max="100" value="0"><output id="progressValue">0%</output></label><label>توضیحات<textarea id="incidentDescription" rows="4"></textarea></label><div class="actions"><button type="button" data-close="incidentDlg">انصراف</button><button class="primary">ذخیره</button></div></form></dialog>
 
