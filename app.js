@@ -216,13 +216,24 @@ applyTheme(localStorage.getItem("incident-theme")||"dark");enforceHistoryLimit()
     renderChat();chat.showModal();setUnread(0);
   }
   $("chatLauncher").onclick=openChat;
-  $("chatAttach").onclick=()=>chatFile.click();
-  chatFile.onchange=()=>{if(chatFile.files?.[0]){chatText.placeholder="فایل آماده ارسال است: "+chatFile.files[0].name}};
+  $("chatAttach").onclick=()=>{
+    const input=document.createElement("input");
+    input.type="file";
+    input.accept="image/*,.pdf,.xlsx,.xls,.doc,.docx";
+    input.style.display="none";
+    input.onchange=()=>{
+      chatFile=input.files?.[0]||null;
+      if(chatFile) chatText.placeholder="فایل آماده ارسال است: "+chatFile.name;
+      input.remove();
+    };
+    document.body.appendChild(input);
+    input.click();
+  };
   chatForm.onsubmit=e=>{
     e.preventDefault();
-    const file=chatFile.files?.[0], text=chatText.value.trim();
+    const file=chatFile, text=chatText.value.trim();
     if(!text&&!file)return;
-    const msgs=getMessages(); msgs.push({id:crypto.randomUUID(),phone:profile.phone,name:[profile.firstName,profile.lastName].filter(Boolean).join(" "),text,file:file?.name||"",time:new Date().toLocaleString("fa-IR")});setMessages(msgs);chatText.value="";chatFile.value="";chatText.placeholder="پیام خود را بنویسید...";renderChat();
+    const msgs=getMessages(); msgs.push({id:crypto.randomUUID(),phone:profile.phone,name:[profile.firstName,profile.lastName].filter(Boolean).join(" "),text,file:file?.name||"",time:new Date().toLocaleString("fa-IR")});setMessages(msgs);chatText.value="";chatFile=null;chatText.placeholder="پیام خود را بنویسید...";renderChat();
   };
   setUnread(getUnread());
   if(!profile) setTimeout(openRegister,120);
